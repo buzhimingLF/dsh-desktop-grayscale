@@ -18,7 +18,9 @@ jobs:
         include:
           - os: windows-latest
             platform: windows-x64
-          - os: macos-13
+          # macos-13 is no longer a reliable public-hosted label; use the
+          # current explicit Intel label documented by GitHub.
+          - os: macos-15-intel
             platform: macos-x64
           - os: macos-14
             platform: macos-arm64
