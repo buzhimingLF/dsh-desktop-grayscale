@@ -1,0 +1,82 @@
+{
+  "name": "dsh-routing-suite",
+  "version": "0.1.2",
+  "description": "Bundled task-aware smart-routing mode for DeepSeek Harness.",
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "preset",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "LICENSES",
+    "THIRD_PARTY_NOTICES.md",
+    "SOURCE_PROVENANCE.md",
+    "ACKNOWLEDGEMENTS.md"
+  ],
+  "license": "MIT",
+  "author": "rpg_zaun <2311993475@qq.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dragonbaba/dsh-routing-suite.git"
+  },
+  "homepage": "https://github.com/dragonbaba/dsh-routing-suite#readme",
+  "bugs": {
+    "url": "https://github.com/dragonbaba/dsh-routing-suite/issues"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh-plugin",
+    "agent",
+    "routing"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ],
+      "platform": "web"
+    },
+    "desktop": {
+      "presets": [
+        {
+          "id": "routing-suite",
+          "path": "./preset/routing-suite"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "schemastery": "3.18.0"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "forkedFrom": "dragonbaba/dsh-routing-suite@0.1.2"
+}

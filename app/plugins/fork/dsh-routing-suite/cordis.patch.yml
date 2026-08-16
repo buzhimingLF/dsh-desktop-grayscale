@@ -1,0 +1,7 @@
+# Standard DSH bundle layer for dsh-routing-suite.
+- insert:
+    - id: dsh-routing-suite
+      name: dsh-routing-suite
+      config:
+        enabled: true
+        strategy: auto

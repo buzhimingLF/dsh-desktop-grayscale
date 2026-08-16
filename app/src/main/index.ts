@@ -12,7 +12,7 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process'
-import { existsSync, mkdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -26,6 +26,34 @@ const APP_DIR = fileURLToPath(new URL('..', import.meta.url))
 function childHome(): string {
   const override = process.env.DSH_HOME
   return override && override.trim() !== '' ? override : join(homedir(), '.dsh')
+}
+
+/**
+ * 桌面端的工作区（DSH 的会话/配置按「工作区目录」隔离）。
+ * 从 ~/.dsh/storages/workspace.json 读最近使用的工作区路径，这样桌面端能直接打开
+ * 用户在网页端用的项目、看到相同的对话；没有记录时回退到用户主目录。
+ */
+function resolveWorkspace(): string {
+  try {
+    const file = join(childHome(), 'storages', 'workspace.json')
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as {
+      tables?: { workspaces?: Record<string, { path?: string; updatedAt?: string }> }
+    }
+    const workspaces = parsed.tables?.workspaces
+    if (workspaces) {
+      let best: { path: string; updatedAt: string } | undefined
+      for (const ws of Object.values(workspaces)) {
+        if (typeof ws.path !== 'string' || ws.path.trim() === '') continue
+        if (best === undefined || (ws.updatedAt ?? '') > (best.updatedAt ?? '')) {
+          best = { path: ws.path, updatedAt: ws.updatedAt ?? '' }
+        }
+      }
+      if (best !== undefined && existsSync(best.path)) return best.path
+    }
+  } catch {
+    /* workspace.json 缺失或格式变化时走默认 */
+  }
+  return homedir()
 }
 
 /**
@@ -189,7 +217,7 @@ async function startRuntime(allowRestart: boolean): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     mkdirSync(childHome(), { recursive: true })
     const proc = spawn(dsh.command, [...dsh.args, 'web', '--port', '0'], {
-      cwd: childHome(),
+      cwd: resolveWorkspace(),
       env: {
         ...process.env,
         DSH_HOME: childHome(),

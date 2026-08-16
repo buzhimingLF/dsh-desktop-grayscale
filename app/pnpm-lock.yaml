@@ -245,6 +245,12 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
 
+  plugins/fork/dsh-routing-suite:
+    dependencies:
+      schemastery:
+        specifier: 3.18.0
+        version: 3.18.0
+
   plugins/fork/dsh-tool-describe-image:
     dependencies:
       react:
@@ -297,6 +303,9 @@ importers:
       dsh-better-sidebar:
         specifier: workspace:*
         version: link:../plugins/fork/dsh-better-sidebar
+      dsh-routing-suite:
+        specifier: workspace:*
+        version: link:../plugins/fork/dsh-routing-suite
       dsh-see-skills:
         specifier: workspace:*
         version: link:../plugins/see-skills

@@ -29,6 +29,10 @@ jobs:
         working-directory: app
         run: pnpm typecheck
 
+      - name: Test routing suite
+        working-directory: app
+        run: pnpm --filter dsh-routing-suite test
+
       - name: Build shell
         working-directory: app
         run: pnpm build

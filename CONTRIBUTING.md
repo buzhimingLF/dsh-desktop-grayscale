@@ -23,6 +23,7 @@ pnpm dev               # 构建壳并启动
 |---|---|
 | `pnpm build` | esbuild 构建主进程/preload 到 `.build/` |
 | `pnpm typecheck` | `tsc --noEmit` 类型检查 |
+| `pnpm --filter dsh-routing-suite test` | 智能路由插件契约与分类测试 |
 | `pnpm verify:runtime` | 确认发布前运行时闭包完整 |
 | `pnpm dev` | 构建并启动 Electron |
 | `pnpm prepare:runtime` | `pnpm deploy` 物化运行时闭包到 `.runtime/` |

@@ -17,7 +17,7 @@ Three runtime layers:
 ┌──────────────────▼──────────────────────────┐
 │ Bundled DSH runtime (.runtime/ or resources/ │
 │ dsh-runtime/) — pnpm deploy hoisted closure  │
-│  @deepseek-ai/dsh + forked plugins + skin    │
+│  @deepseek-ai/dsh + forked plugins + routing │
 └──────────────────┬──────────────────────────┘
                    │ serves official Web UI
 ┌──────────────────▼──────────────────────────┐
@@ -66,6 +66,27 @@ First boot creates the profile, so the app seats plugins **after** readiness and
 
 - host: registers a model-facing `list_skills` tool and a `GET /see-skills/skills` route; both return structured JSON (name / description / sections / references / scripts / preview) by scanning `~/.dsh/skills`, `~/.agents/skills` and the bundled modlens skill dir;
 - client: registers a "技能" tab in better-sidebar (`ctx.betterSidebar.registerTab`) rendering that inventory.
+
+## The dsh-routing-suite plugin
+
+`plugins/fork/dsh-routing-suite` is the vendored MIT package from
+[`dragonbaba/dsh-routing-suite`](https://github.com/dragonbaba/dsh-routing-suite),
+adapted only at the packaging boundary (`forkedFrom` metadata and workspace
+dependency layout). It declares a selectable `routing-suite` Agent preset and
+adds a localized, read-only settings section.
+
+The Host hook is intentionally narrow:
+
+- it runs only when the selected preset is `routing-suite`;
+- it classifies the first durable user message as `inspect-first`, `direct`, or
+  `neutral`;
+- it appends or replaces only its own `routing-suite-guidance` section;
+- it preserves contexts, tools, persona, and all other assembly fields;
+- it exposes only `GET /routing-suite/api/status` for the settings view.
+
+The plugin has no filesystem, process, package-management, tool-filtering, or
+extra-LLM capability. The desktop seats it through the same offline bundle
+mechanism as the other curated plugins.
 
 ## Security boundary
 

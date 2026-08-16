@@ -30,7 +30,8 @@ It consumes only DSH's **public boundary** — the official `dsh web` UI — and
 - 🎨 **Minimal grayscale skin** (`dsh-skin-grayscale`) — every DSH design token desaturated by perceptual luminance; editor & terminal deep-grayscaled.
 - 🧊 **Glassmorphism theme** (`dsh-client-ui-aqua`, forked from DSH-Transparent-UI-Plugin) — frosted glass panes, adjustable blur/frost/backdrop.
 - 🛠️ **Skills viewer** (`dsh-see-skills`) — `list_skills` tool + `/see-skills/skills` route + a sidebar "Skills" tab, structured output following modlens' evidence contract.
-- 🧩 **Curated plugin stack** — modlens (vision), better-sidebar (workbench), task-board, git-graph, aionui right-panel, describe-image, skin-center.
+- 🧭 **Task-aware routing** (`dsh-routing-suite`) — a selectable Smart routing mode that chooses inspect-first or direct execution from the first durable user task, without extra model calls or tool restrictions.
+- 🧩 **Curated plugin stack** — modlens (vision), better-sidebar (workbench), task-board, git-graph, aionui right-panel, describe-image, skin-center, and Smart routing.
 
 ## Bundled plugins
 
@@ -47,6 +48,7 @@ It consumes only DSH's **public boundary** — the official `dsh web` UI — and
 | `@deepseek-ai/dsh-client-ui-aqua` | glassmorphism theme | forked |
 | `dsh-skin-grayscale` | minimal grayscale skin | **built in this repo** |
 | `dsh-see-skills` | skills viewer | **built in this repo** |
+| `dsh-routing-suite` | Smart routing mode: inspect-first / direct execution / automatic classification | forked from [dragonbaba/dsh-routing-suite](https://github.com/dragonbaba/dsh-routing-suite) |
 
 > The official `@linxin666/dsh-web-ui-all` aggregate is intentionally avoided: its bundled `dsh-liangshen` crashes DSH rc.6, and it pulls pet/remote-web-ui/ssh that we don't need. We seat the curated sub-packages directly.
 
@@ -63,7 +65,7 @@ pnpm dev              # build the shell and launch Electron
 
 `pnpm dev` will:
 1. spawn the bundled `dsh web --port 0` (data dir `~/.dsh`, shared with the CLI);
-2. seat the plugins into the `web` profile;
+2. seat the plugins and the Smart routing mode into the `web` profile;
 3. open a frameless window loading the official Web UI.
 
 ## Build the installer

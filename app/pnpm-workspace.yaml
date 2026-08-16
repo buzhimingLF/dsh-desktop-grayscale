@@ -75,6 +75,8 @@ minimumReleaseAgeExclude:
   - '@linxin666/dsh-skins@0.1.17'
   - '@linxin666/dsh-ssh@0.1.17'
   - '@linxin666/dsh-tool-describe-image@0.1.17'
+  - '@smithy/core@3.33.1'
+  - '@smithy/types@4.17.1'
 
 allowBuilds:
   '@deepseek-ai/dsh-subprocess-local': true

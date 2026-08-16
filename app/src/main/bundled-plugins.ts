@@ -16,6 +16,7 @@
  */
 
 import {
+  copyFileSync,
   existsSync,
   lstatSync,
   mkdirSync,
@@ -27,7 +28,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
 
 export const WEB_PROFILE = 'web'
 
@@ -48,6 +49,7 @@ export const BUNDLED_PLUGIN_NAMES = [
   'dsh-skin-grayscale',
   'dsh-see-skills',
   '@deepseek-ai/dsh-client-ui-aqua',
+  'dsh-routing-suite',
 ] as const
 
 interface ProfileManifest {
@@ -55,11 +57,20 @@ interface ProfileManifest {
   dsh?: { profile?: { bundles?: string[] } }
 }
 
+interface PluginManifest {
+  dsh?: {
+    desktop?: {
+      presets?: Array<{ id?: string; path?: string }>
+    }
+  }
+}
+
 export interface SeatResult {
   seated: string[]
   added: string[]
   missing: string[]
   flattened: number
+  presetsAdded: string[]
 }
 
 function profileDir(dshHome: string): string {
@@ -122,6 +133,17 @@ function ensureLink(link: string, src: string): boolean {
   return true
 }
 
+/** Copy a small preset tree without Node's native recursive cp implementation. */
+function copyPresetTree(source: string, target: string): void {
+  mkdirSync(target, { recursive: true })
+  for (const entry of readdirSync(source, { withFileTypes: true })) {
+    const from = join(source, entry.name)
+    const to = join(target, entry.name)
+    if (entry.isDirectory()) copyPresetTree(from, to)
+    else if (entry.isFile()) copyFileSync(from, to)
+  }
+}
+
 /**
  * 把闭包 node_modules 的依赖图拍平到 profiles/node_modules。
  * 闭包由 `pnpm deploy --node-linker=hoisted` 物化，包都在顶层（@scope 在 @scope/* 下），
@@ -163,7 +185,8 @@ function flattenClosure(nmRoot: string, dshHome: string): number {
  * @param dshHome    官方 DSH 数据目录（~/.dsh）
  */
 export function seatBundledPlugins(pluginDirs: Map<string, string>, nmRoot: string, dshHome: string): SeatResult {
-  const result: SeatResult = { seated: [], added: [], missing: [], flattened: 0 }
+  const result: SeatResult = { seated: [], added: [], missing: [], flattened: 0, presetsAdded: [] }
+  result.presetsAdded = materializeBundledPresets(pluginDirs, dshHome)
   const manifest = readManifest(dshHome)
   // 首次运行还没有 profile：等 boot 生成后，下一轮再 seat。
   if (manifest === undefined) {
@@ -209,6 +232,48 @@ export function seatBundledPlugins(pluginDirs: Map<string, string>, nmRoot: stri
     }
   }
   return result
+}
+
+/**
+ * Materialize package-declared Agent presets before the DSH process boots.
+ * DSH rc.6 reads user presets from `<DSH_HOME>/.agent-presets`; the public
+ * plugin manifest only declares the source path and does not copy it there.
+ * Existing user presets are never overwritten.
+ */
+export function materializeBundledPresets(pluginDirs: Map<string, string>, dshHome: string): string[] {
+  const added: string[] = []
+  const targetRoot = join(dshHome, '.agent-presets')
+
+  for (const [packageName, packageDir] of pluginDirs) {
+    let manifest: PluginManifest
+    try {
+      manifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as PluginManifest
+    } catch {
+      continue
+    }
+    for (const preset of manifest.dsh?.desktop?.presets ?? []) {
+      const id = preset.id?.trim()
+      const sourcePath = preset.path?.trim()
+      if (id === undefined || sourcePath === undefined || !/^[a-z0-9][a-z0-9-]*$/i.test(id)) continue
+      const source = resolve(packageDir, sourcePath)
+      const sourceRelative = relative(resolve(packageDir), source)
+      if (sourceRelative.startsWith('..') || isAbsolute(sourceRelative) || !existsSync(source)) {
+        console.error(`[desktop] 跳过不安全或不存在的 preset ${packageName}:${id}`)
+        continue
+      }
+      const target = join(targetRoot, id)
+      if (existsSync(target)) continue
+      try {
+        mkdirSync(targetRoot, { recursive: true })
+        copyPresetTree(source, target)
+        added.push(id)
+        console.log(`[desktop] 已物化 Agent preset: ${packageName}:${id}`)
+      } catch (error) {
+        console.error(`[desktop] Agent preset 物化失败 ${packageName}:${id}: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+  }
+  return added
 }
 
 /** 反向操作：把某个包从 bundles 里移除（出错兜底用）。 */

@@ -15,7 +15,9 @@ pnpm dev
 
 ## 预装插件
 
-运行时包含 modlens、better-sidebar、task-board、git-graph、aionui-panel、web-ui-settings、describe-image、skin-center、灰度皮肤、技能查看和玻璃拟态皮肤。聚合包及不稳定的额外插件未被打入安装包。
+运行时包含 modlens、better-sidebar、task-board、git-graph、aionui-panel、web-ui-settings、describe-image、skin-center、灰度皮肤、技能查看、玻璃拟态皮肤和 `dsh-routing-suite` 智能路由模式。聚合包及不稳定的额外插件未被打入安装包。
+
+「智能路由模式」只在该模式下生效：它读取会话中的第一条真实用户任务，自动选择检查优先或直接执行，并通过公开的 `system-prompt/assemble` 边界追加一段短提示。它不读取文件、不执行命令、不裁剪工具，也不产生额外模型请求。
 
 ## 本地打包
 

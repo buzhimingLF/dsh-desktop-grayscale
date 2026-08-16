@@ -30,7 +30,8 @@
 - 🎨 **极简灰度皮肤**（`dsh-skin-grayscale`）—— 按感知亮度对全部 DSH 设计 token 去色，编辑器/终端深度灰度。
 - 🧊 **玻璃拟态主题**（`dsh-client-ui-aqua`，fork 自 DSH-Transparent-UI-Plugin）—— 磨砂玻璃面板，可调模糊度/磨砂度/背景。
 - 🛠️ **技能查看插件**（`dsh-see-skills`）—— `list_skills` 工具 + `/see-skills/skills` 路由 + 侧边栏「技能」tab，结构化输出沿用 modlens 的证据契约。
-- 🧩 **精选插件栈** —— modlens（视觉）、better-sidebar（工作台）、task-board、git-graph、aionui 右面板、describe-image、skin-center。
+- 🧭 **任务感知路由**（`dsh-routing-suite`）——可选的「智能路由模式」，根据首条真实任务自动选择“检查优先”或“直接执行”，不增加模型请求，也不裁剪工具。
+- 🧩 **精选插件栈** —— modlens（视觉）、better-sidebar（工作台）、task-board、git-graph、aionui 右面板、describe-image、skin-center 和智能路由。
 
 ## 预装插件
 
@@ -47,6 +48,7 @@
 | `@deepseek-ai/dsh-client-ui-aqua` | 玻璃拟态主题 | fork |
 | `dsh-skin-grayscale` | 极简灰度皮肤 | **本仓库自研** |
 | `dsh-see-skills` | 技能查看 | **本仓库自研** |
+| `dsh-routing-suite` | 智能路由模式：检查优先 / 直接执行 / 自动判断 | fork 自 [dragonbaba/dsh-routing-suite](https://github.com/dragonbaba/dsh-routing-suite) |
 
 > 有意不用官方聚合包 `@linxin666/dsh-web-ui-all`：其内置的 `dsh-liangshen` 会在 DSH rc.6 上原生崩溃，且会拉入我们不需要的 pet/remote-web-ui/ssh。改为精选子包直挂。
 
@@ -63,7 +65,7 @@ pnpm dev              # 构建壳并启动 Electron
 
 `pnpm dev` 会：
 1. 用内置运行时拉起 `dsh web --port 0`（数据目录 `~/.dsh`，与 CLI 共享）；
-2. 把插件 seat 进 `web` profile；
+2. 把插件和「智能路由模式」seat 进 `web` profile；
 3. 打开无边框窗口加载官方 Web UI。
 
 ## 打包安装器

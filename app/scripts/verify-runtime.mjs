@@ -20,6 +20,7 @@ const requiredPackages = [
   'dsh-skin-grayscale',
   'dsh-see-skills',
   '@deepseek-ai/dsh-client-ui-aqua',
+  'dsh-routing-suite',
 ]
 
 const missing = []

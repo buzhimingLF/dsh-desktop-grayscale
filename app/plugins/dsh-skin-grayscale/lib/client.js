@@ -10,11 +10,15 @@ window.__ModuleLoader__.load({
 			const tag = document.createElement("style");
 			tag.dataset.plugin = "dsh-skin-grayscale";
 			tag.dataset.pluginCss = tagId;
-			tag.textContent = css;
+			// The official web UI writes its active theme tokens to body.style. Those
+			// inline custom properties otherwise outrank this skin's stylesheet. Keep
+			// the grayscale skin authoritative for tokens while leaving normal layout
+			// and component styles in the upstream UI untouched.
+			 tag.textContent = css.replace(/(--[a-z0-9-]+):([^;}]+)/gi, "$1:$2!important");
 			document.head.appendChild(tag);
 		}
 		// 深度灰度：皮肤 token 覆盖不到的地方（better-sidebar 编辑器语法色、xterm 终端）按亮度去色。
-		const DEEP_CSS = "body[data-dsh-grayscale] .cm-editor, body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
+		const DEEP_CSS = "body[data-dsh-grayscale] #root, body[data-dsh-grayscale] .cm-editor, body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
 		function apply(ctx) {
 			const body = document.body;
 			body.dataset.dshGrayscale = "";
