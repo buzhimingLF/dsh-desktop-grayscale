@@ -68,16 +68,35 @@ pnpm dev              # 构建壳并启动 Electron
 
 ## 打包安装器
 
+普通用户请前往 [GitHub Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases) 下载对应系统的安装包：
+
+| 平台 | 安装包 |
+|---|---|
+| Windows x64 | NSIS `.exe` 安装器 |
+| macOS x64 / arm64 | `.dmg` 安装器或 `.zip` 压缩包 |
+| Linux x64 | `.AppImage` 或 `.deb` 安装包 |
+
+每个安装包都内置 Electron、锁定版本的 DSH 运行时和精选插件，不需要另外安装 Node.js、pnpm 或 `dsh` CLI。当前公开包暂未签名，首次运行时 Windows SmartScreen 或 macOS Gatekeeper 可能需要手动确认。
+
+维护者本地打包：
+
 ```bash
 cd app
-pnpm dist             # prepare-runtime → build → electron-builder（NSIS 安装器）
+pnpm dist             # prepare-runtime → verify → build → electron-builder
 ```
 
-产出：`release/dsh-desktop-<version>-win-x64.exe`。
+在对应操作系统上运行会生成原生安装包到 `app/release/`：
+
+- Windows：NSIS `.exe`
+- macOS：`.dmg` 和 `.zip`
+- Linux：`.AppImage` 和 `.deb`
 
 说明：
-- 原生模块随包附 prebuild；`node-pty` 使用 N-API（ABI 稳定），无需重建。
-- Windows 打包暂未配置代码签名（`signAndEditExecutable: false`），公开发布前请开启。
+- 打包前会验证运行时闭包，缺包时直接失败，不会静默生成不可用 Release。
+- 原生模块随包附平台 prebuild；`node-pty` 使用 N-API（ABI 稳定），无需 Electron ABI 重建。
+- 签名暂未启用，待 CI 配置各平台签名凭据后再开启。
+
+推送形如 `v0.1.0` 的版本标签后，跨平台 Release 工作流会自动构建并上传 Windows、macOS、Linux 安装包。
 
 ## 目录结构
 

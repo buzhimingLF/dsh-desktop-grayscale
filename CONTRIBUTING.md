@@ -23,10 +23,11 @@ pnpm dev               # 构建壳并启动
 |---|---|
 | `pnpm build` | esbuild 构建主进程/preload 到 `.build/` |
 | `pnpm typecheck` | `tsc --noEmit` 类型检查 |
+| `pnpm verify:runtime` | 确认发布前运行时闭包完整 |
 | `pnpm dev` | 构建并启动 Electron |
 | `pnpm prepare:runtime` | `pnpm deploy` 物化运行时闭包到 `.runtime/` |
 | `pnpm generate:skin` | 重新生成极简灰度皮肤 |
-| `pnpm pack:dir` / `pnpm dist` | 打包（解包 / NSIS 安装器） |
+| `pnpm pack:dir` / `pnpm dist` | 打包（目录包 / 当前平台安装器） |
 
 ## 验证脚本
 
@@ -35,6 +36,10 @@ pnpm dev               # 构建壳并启动
 - `bisect-plugins.mjs` —— 逐个 seat 插件并 boot，定位崩溃插件；
 - `verify-see-skills.mjs` —— 验证 `/see-skills/skills` 返回结构化 JSON；
 - `integration-seat-test.mjs` —— 全量 seat + boot 冒烟。
+
+## 发布
+
+推送 `vX.Y.Z` 标签会触发 `.github/workflows/release.yml`，在 Windows、macOS、Linux 原生 runner 上构建并把安装包上传到 GitHub Release。公开构建暂未配置代码签名。
 
 ## 提交规范
 

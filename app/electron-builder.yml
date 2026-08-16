@@ -39,4 +39,22 @@ nsis:
   perMachine: false
   allowToChangeInstallationDirectory: true
 
+mac:
+  # 未配置 Apple Developer 证书时生成可下载的未签名包；发布机通过环境变量
+  # CSC_IDENTITY_AUTO_DISCOVERY=false 明确关闭自动签名探测。
+  identity: null
+  category: public.app-category.developer-tools
+  target:
+    - dmg
+    - zip
+
+linux:
+  maintainer: DSH Desktop maintainers <buzhimingLF@users.noreply.github.com>
+  category: Development
+  synopsis: DeepSeek Harness desktop client
+  description: Electron desktop client for DeepSeek Harness with bundled runtime and plugins.
+  target:
+    - AppImage
+    - deb
+
 publish: null

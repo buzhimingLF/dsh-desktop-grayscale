@@ -68,16 +68,36 @@ pnpm dev              # build the shell and launch Electron
 
 ## Build the installer
 
+For end users, download the latest platform package from the
+[GitHub Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases) page:
+
+| Platform | Package |
+|---|---|
+| Windows x64 | NSIS `.exe` installer |
+| macOS x64 / arm64 | `.dmg` installer or `.zip` archive |
+| Linux x64 | `.AppImage` or `.deb` package |
+
+Each package contains Electron, the locked DSH runtime, and the curated plugins. Node.js, pnpm, and the `dsh` CLI are not required. Public packages are currently unsigned, so Windows SmartScreen or macOS Gatekeeper may require an explicit confirmation on first launch.
+
+For maintainers building locally:
+
 ```bash
 cd app
-pnpm dist             # prepare-runtime → build → electron-builder (NSIS installer)
+pnpm dist             # prepare-runtime → verify → build → electron-builder
 ```
 
-Output: `release/dsh-desktop-<version>-win-x64.exe`.
+The current operating system produces its native targets in `app/release/`:
+
+- Windows: NSIS `.exe`
+- macOS: `.dmg` and `.zip`
+- Linux: `.AppImage` and `.deb`
 
 Notes:
-- Native modules ship prebuilt; `node-pty` uses N-API (ABI-stable), no rebuild needed.
-- Windows packaging currently disables code signing (`signAndEditExecutable: false`); enable it before public release.
+- The build verifies the runtime closure before invoking electron-builder, so a partial runtime cannot silently become a release asset.
+- Native modules ship with platform prebuilds; `node-pty` uses N-API (ABI-stable), no Electron ABI rebuild is required.
+- Signing is intentionally disabled until platform-specific signing credentials are configured in CI.
+
+Pushing a tag such as `v0.1.0` runs the cross-platform release workflow and uploads all three platform packages to GitHub Releases.
 
 ## Project structure
 

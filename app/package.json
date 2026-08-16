@@ -3,6 +3,11 @@
   "productName": "DSH Desktop",
   "version": "0.1.0",
   "description": "DeepSeek Harness 桌面版（极简灰度）—— Electron 壳 + 官方 dsh web UI + modlens / dsh-web-ui / dsh-better-sidebar 预装",
+  "author": {
+    "name": "DSH Desktop maintainers",
+    "email": "buzhimingLF@users.noreply.github.com"
+  },
+  "homepage": "https://github.com/buzhimingLF/dsh-desktop-grayscale",
   "private": true,
   "type": "module",
   "main": ".build/main.mjs",
@@ -10,14 +15,15 @@
   "packageManager": "pnpm@11.17.0",
   "scripts": {
     "prepare:runtime": "node scripts/prepare-runtime.mjs",
+    "verify:runtime": "node scripts/verify-runtime.mjs",
     "rebuild:native": "node scripts/rebuild-native.mjs",
     "generate:skin": "node scripts/generate-grayscale-skin.mjs",
     "build": "node scripts/build.mjs",
     "dev": "node scripts/build.mjs && electron .",
     "start": "electron .",
     "typecheck": "tsc --noEmit",
-    "dist": "node scripts/prepare-runtime.mjs && node scripts/build.mjs && electron-builder --publish never",
-    "pack:dir": "node scripts/prepare-runtime.mjs && node scripts/build.mjs && electron-builder --dir"
+    "dist": "node scripts/prepare-runtime.mjs && node scripts/verify-runtime.mjs && node scripts/build.mjs && electron-builder --publish never",
+    "pack:dir": "node scripts/prepare-runtime.mjs && node scripts/verify-runtime.mjs && node scripts/build.mjs && electron-builder --dir"
   },
   "devDependencies": {
     "@electron/rebuild": "3.7.0",
