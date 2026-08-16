@@ -1,0 +1,42 @@
+appId: com.dsh.desktop
+productName: DSH Desktop
+copyright: Copyright © 2026 DSH Desktop
+
+directories:
+  output: release
+
+files:
+  - .build/**/*
+  - package.json
+  - "!node_modules/**/*"
+
+extraResources:
+  # 内置 dsh 运行时闭包 + 3 个插件，整体随包分发（位于 app.asar 之外，子进程按普通文件读取）。
+  # .runtime/ 由 pnpm deploy 物化（hoisted 平铺，peer 解析正确）。
+  - from: .runtime/node_modules
+    to: dsh-runtime/node_modules
+
+asar: true
+npmRebuild: false
+compression: normal
+artifactName: dsh-desktop-${version}-${os}-${arch}.${ext}
+
+electronLanguages:
+  - zh-CN
+  - zh_CN
+  - en-US
+  - en
+
+win:
+  # 本仓库暂未配置代码签名证书；关掉签名与可执行文件编辑，也避免 winCodeSign
+  # 在无管理员/开发者模式的 Windows 上解压符号链接失败（正式发布时再开启）。
+  signAndEditExecutable: false
+  target:
+    - nsis
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+
+publish: null

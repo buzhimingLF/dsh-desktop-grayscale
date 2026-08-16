@@ -1,0 +1,27 @@
+{
+  "name": "dsh-skin-grayscale",
+  "version": "0.1.0",
+  "description": "极简灰度皮肤：把全部 DSH 设计 token 按亮度去色，黑白灰极简视觉",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "skin.json"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,47 @@
+name: Bug report
+description: 提交一个 bug 报告
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你报告问题！请尽量填写完整，帮助我们快速定位。
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 受影响的应用/插件版本
+      placeholder: 例如 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: 平台
+      description: 操作系统与架构
+      placeholder: 例如 Windows 11 x64
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 如何稳定触发该问题
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 报错信息 / 日志 / 截图
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充上下文
+      description: 其它有助于定位的信息（配置、插件组合等）

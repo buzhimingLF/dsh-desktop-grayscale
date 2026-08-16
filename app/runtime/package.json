@@ -1,0 +1,41 @@
+{
+  "name": "dsh-desktop-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "description": "内置 dsh 运行时闭包 + 预装插件（modlens / dsh-better-sidebar / dsh-web-ui-all）",
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.1.0-rc.6",
+    "@liustack/modlens": "workspace:*",
+    "dsh-better-sidebar": "workspace:*",
+    "@linxin666/dsh-client-ui-task-board": "workspace:*",
+    "@linxin666/dsh-client-ui-git-graph": "workspace:*",
+    "@linxin666/dsh-client-ui-aionui-panel": "workspace:*",
+    "@linxin666/dsh-client-ui-web-ui-settings": "workspace:*",
+    "@linxin666/dsh-tool-describe-image": "workspace:*",
+    "@linxin666/dsh-client-ui-skin-center": "workspace:*",
+    "dsh-skin-grayscale": "workspace:*",
+    "dsh-see-skills": "workspace:*",
+    "@deepseek-ai/dsh-client-ui-aqua": "workspace:*"
+  },
+  "optionalDependencies": {
+    "@img/sharp-darwin-arm64": "0.35.3",
+    "@img/sharp-darwin-x64": "0.35.3",
+    "@img/sharp-libvips-darwin-arm64": "1.3.2",
+    "@img/sharp-libvips-darwin-x64": "1.3.2",
+    "@img/sharp-libvips-linux-x64": "1.3.2",
+    "@img/sharp-linux-x64": "0.35.3",
+    "@img/sharp-win32-x64": "0.35.3",
+    "@koromix/koffi-darwin-arm64": "3.1.4",
+    "@koromix/koffi-darwin-x64": "3.1.4",
+    "@koromix/koffi-linux-x64": "3.1.4",
+    "@koromix/koffi-win32-x64": "3.1.4",
+    "@vscode/ripgrep-darwin-arm64": "1.18.0",
+    "@vscode/ripgrep-darwin-x64": "1.18.0",
+    "@vscode/ripgrep-linux-x64": "1.18.0",
+    "@vscode/ripgrep-win32-x64": "1.18.0",
+    "node-addon-require-builtin-darwin-arm64": "0.1.4",
+    "node-addon-require-builtin-darwin-x64": "0.1.4",
+    "node-addon-require-builtin-linux-x64-gnu": "0.1.4",
+    "node-addon-require-builtin-win32-x64-msvc": "0.1.4"
+  }
+}

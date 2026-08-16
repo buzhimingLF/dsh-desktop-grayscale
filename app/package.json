@@ -1,0 +1,30 @@
+{
+  "name": "dsh-desktop",
+  "productName": "DSH Desktop",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness 桌面版（极简灰度）—— Electron 壳 + 官方 dsh web UI + modlens / dsh-web-ui / dsh-better-sidebar 预装",
+  "private": true,
+  "type": "module",
+  "main": ".build/main.mjs",
+  "license": "MIT",
+  "packageManager": "pnpm@11.17.0",
+  "scripts": {
+    "prepare:runtime": "node scripts/prepare-runtime.mjs",
+    "rebuild:native": "node scripts/rebuild-native.mjs",
+    "generate:skin": "node scripts/generate-grayscale-skin.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && electron .",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit",
+    "dist": "node scripts/prepare-runtime.mjs && node scripts/build.mjs && electron-builder --publish never",
+    "pack:dir": "node scripts/prepare-runtime.mjs && node scripts/build.mjs && electron-builder --dir"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "3.7.0",
+    "@types/node": "^24.0.0",
+    "electron": "^39.0.0",
+    "electron-builder": "26.0.12",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0"
+  }
+}

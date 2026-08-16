@@ -1,0 +1,33 @@
+{
+  "name": "@liustack/modlens",
+  "version": "3.17.0",
+  "description": "Plug-in vision for text-only LLMs, powered by the free Antigravity CLI",
+  "type": "module",
+  "exports": {
+    ".": "./dsh/index.js",
+    "./dsh": "./dsh/index.js",
+    "./package.json": "./package.json",
+    "./client": "./dsh/client.js"
+  },
+  "bin": {
+    "modlens": "./dist/main.js"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "undici": "^8.10.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web",
+      "immediately": true
+    }
+  },
+  "engines": {
+    "node": ">=22.19"
+  },
+  "forkedFrom": "@liustack/modlens@3.17.0"
+}

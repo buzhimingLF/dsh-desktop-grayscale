@@ -1,0 +1,40 @@
+# ---- 依赖与构建产物 ----
+node_modules/
+**/node_modules/
+app/.build/
+app/.runtime/
+app/release/
+dist/
+release/
+
+# ---- 日志与临时文件 ----
+*.log
+*.tmp
+.tmp-*
+.test-home*/
+*.tgz
+
+# ---- 参考克隆（第三方上游仓库，不入库）----
+upstream/
+
+# ---- 密钥与敏感信息（严禁提交）----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+credentials*
+.credentials*
+**/.credentials*
+settings.yaml
+**/settings.yaml
+secret*
+*.secret
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,116 @@
+/** `describe-image` client namespace dictionaries (composer attach button copy). */
+/** Simplified Chinese dictionary (the key-set source of truth). */
+export declare const zh: {
+    'attach.button.title': string;
+    'attach.button.aria': string;
+    'attach.uploading': string;
+    'attach.success': string;
+    'attach.error.read': string;
+    'attach.error.type': string;
+    'attach.error.size': string;
+    'attach.error.noSession': string;
+    'attach.error.upload': string;
+    'card.title': string;
+    'card.description': string;
+    'settings.expand': string;
+    'settings.collapse': string;
+    'settings.notExposed': string;
+    'settings.unsaved': string;
+    'settings.readOnly': string;
+    'settings.saveFailed': string;
+    'settings.discard': string;
+    'settings.save': string;
+    'settings.saving': string;
+    'settings.overridden': string;
+    'settings.reset': string;
+    'settings.inherit': string;
+    'settings.on': string;
+    'settings.off': string;
+    'settings.invalidNumber': string;
+    'field.baseURL': string;
+    'field.baseURL.hint': string;
+    'field.model': string;
+    'field.model.hint': string;
+    'field.apiStyle': string;
+    'field.apiStyle.hint': string;
+    'field.apiStyle.chatCompletions': string;
+    'field.apiStyle.responses': string;
+    'field.apiKey': string;
+    'field.apiKey.hint': string;
+    'field.apiKeyEnv': string;
+    'field.apiKeyEnv.hint': string;
+    'field.defaultPrompt': string;
+    'field.defaultPrompt.hint': string;
+    'field.maxBytes': string;
+    'field.maxBytes.hint': string;
+    'field.maxOutputTokens': string;
+    'field.maxOutputTokens.hint': string;
+    'field.timeoutMs': string;
+    'field.timeoutMs.hint': string;
+    'field.renderImagePreview': string;
+    'field.renderImagePreview.hint': string;
+    'preview.expand': string;
+    'preview.close': string;
+};
+/** The describe-image client namespace key union. */
+export type DescribeImageClientKey = keyof typeof zh;
+/** English dictionary, checked complete against the zh key set. */
+export declare const en: {
+    'attach.button.title': string;
+    'attach.button.aria': string;
+    'attach.uploading': string;
+    'attach.success': string;
+    'attach.error.read': string;
+    'attach.error.type': string;
+    'attach.error.size': string;
+    'attach.error.noSession': string;
+    'attach.error.upload': string;
+    'card.title': string;
+    'card.description': string;
+    'settings.expand': string;
+    'settings.collapse': string;
+    'settings.notExposed': string;
+    'settings.unsaved': string;
+    'settings.readOnly': string;
+    'settings.saveFailed': string;
+    'settings.discard': string;
+    'settings.save': string;
+    'settings.saving': string;
+    'settings.overridden': string;
+    'settings.reset': string;
+    'settings.inherit': string;
+    'settings.on': string;
+    'settings.off': string;
+    'settings.invalidNumber': string;
+    'field.baseURL': string;
+    'field.baseURL.hint': string;
+    'field.model': string;
+    'field.model.hint': string;
+    'field.apiStyle': string;
+    'field.apiStyle.hint': string;
+    'field.apiStyle.chatCompletions': string;
+    'field.apiStyle.responses': string;
+    'field.apiKey': string;
+    'field.apiKey.hint': string;
+    'field.apiKeyEnv': string;
+    'field.apiKeyEnv.hint': string;
+    'field.defaultPrompt': string;
+    'field.defaultPrompt.hint': string;
+    'field.maxBytes': string;
+    'field.maxBytes.hint': string;
+    'field.maxOutputTokens': string;
+    'field.maxOutputTokens.hint': string;
+    'field.timeoutMs': string;
+    'field.timeoutMs.hint': string;
+    'field.renderImagePreview': string;
+    'field.renderImagePreview.hint': string;
+    'preview.expand': string;
+    'preview.close': string;
+};
+/** The two dictionaries, keyed by language. */
+export declare const dictionaries: Record<string, Record<DescribeImageClientKey, string>>;
+/** Switch the client copy language. */
+export declare function setLanguage(language: string): void;
+/** Translate one key; falls back to the zh dictionary for unknown keys. */
+export declare function t(key: DescribeImageClientKey, params?: Record<string, string | number>): string;
+//# sourceMappingURL=locales.d.ts.map

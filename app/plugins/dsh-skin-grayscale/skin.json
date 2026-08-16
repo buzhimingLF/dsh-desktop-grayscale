@@ -1,0 +1,23 @@
+{
+  "id": "grayscale",
+  "name": "极简灰度",
+  "nameEn": "Grayscale Minimal",
+  "author": "DSH Desktop",
+  "tagline": "黑白灰极简 · 全 token 去色 · 单一中性强调",
+  "description": "把 DSH 全部设计 token 按感知亮度去色为灰度，保留明暗层次，去掉品牌蓝与所有彩色，仅保留中性灰。",
+  "tags": [
+    "grayscale",
+    "minimal",
+    "monochrome",
+    "flat"
+  ],
+  "accent": "#6b6b6b",
+  "bodyAttr": "data-dsh-grayscale",
+  "package": "dsh-skin-grayscale",
+  "wiring": {
+    "id": "ui-skin-grayscale",
+    "bundleWired": false
+  },
+  "preview": {},
+  "order": 100
+}

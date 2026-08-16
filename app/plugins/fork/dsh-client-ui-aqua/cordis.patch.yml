@@ -1,0 +1,4 @@
+# Aqua 玻璃拟态主题 bundle patch：插入 dshClient 行到 web 插件列表。
+- insert:
+    - id: ui-aqua
+      name: '@deepseek-ai/dsh-client-ui-aqua'

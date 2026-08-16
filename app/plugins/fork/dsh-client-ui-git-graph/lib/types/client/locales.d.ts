@@ -1,0 +1,84 @@
+/** `git-graph` namespace dictionaries (branch selector + Git graph copy). */
+/** Simplified Chinese dictionary (the key-set source of truth). */
+export declare const zh: {
+    'branch.search': string;
+    'branch.empty': string;
+    'branch.detached': string;
+    'branch.dirty': string;
+    'branch.create': string;
+    'branch.graph': string;
+    'branch.createDialog.title': string;
+    'branch.createDialog.description': string;
+    'branch.createDialog.nameLabel': string;
+    'branch.createDialog.placeholder': string;
+    'branch.createDialog.confirm': string;
+    'branch.createDialog.cancel': string;
+    'graph.title': string;
+    'graph.subtitle': string;
+    'graph.loading': string;
+    'graph.loadMore': string;
+    'graph.close': string;
+    'graph.empty': string;
+    'graph.time.justNow': string;
+    'graph.time.minutesAgo': string;
+    'graph.time.hoursAgo': string;
+    'graph.time.daysAgo': string;
+    'error.conflictsPresent': string;
+    'error.operationInProgress': string;
+    'error.branchInOtherWorktree': string;
+    'error.trackedOverwrite': string;
+    'error.untrackedOverwrite': string;
+    'error.moreFiles': string;
+    'error.targetBranchNotFound': string;
+    'error.invalidBranchName': string;
+    'error.branchAlreadyExists': string;
+    'error.workspaceUnknown': string;
+    'error.internal': string;
+    'error.requestFailed': string;
+    'toast.switchSuccess': string;
+    'toast.createSuccess': string;
+    'chip.aria.branch': string;
+};
+/** The git-graph namespace key union. */
+export type GitGraphKey = keyof typeof zh;
+/** English dictionary, checked complete against the zh key set. */
+export declare const en: {
+    'branch.search': string;
+    'branch.empty': string;
+    'branch.detached': string;
+    'branch.dirty': string;
+    'branch.create': string;
+    'branch.graph': string;
+    'branch.createDialog.title': string;
+    'branch.createDialog.description': string;
+    'branch.createDialog.nameLabel': string;
+    'branch.createDialog.placeholder': string;
+    'branch.createDialog.confirm': string;
+    'branch.createDialog.cancel': string;
+    'graph.title': string;
+    'graph.subtitle': string;
+    'graph.loading': string;
+    'graph.loadMore': string;
+    'graph.close': string;
+    'graph.empty': string;
+    'graph.time.justNow': string;
+    'graph.time.minutesAgo': string;
+    'graph.time.hoursAgo': string;
+    'graph.time.daysAgo': string;
+    'error.conflictsPresent': string;
+    'error.operationInProgress': string;
+    'error.branchInOtherWorktree': string;
+    'error.trackedOverwrite': string;
+    'error.untrackedOverwrite': string;
+    'error.moreFiles': string;
+    'error.targetBranchNotFound': string;
+    'error.invalidBranchName': string;
+    'error.branchAlreadyExists': string;
+    'error.workspaceUnknown': string;
+    'error.internal': string;
+    'error.requestFailed': string;
+    'toast.switchSuccess': string;
+    'toast.createSuccess': string;
+    'chip.aria.branch': string;
+};
+//# sourceMappingURL=locales.d.ts.map

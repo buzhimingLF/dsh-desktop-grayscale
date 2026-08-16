@@ -1,0 +1,26 @@
+{
+  "name": "dsh-see-skills",
+  "version": "0.1.0",
+  "description": "技能查看插件：扫描 SKILL.md 并把技能清单结构化（name/description/触发条件/章节/参考/脚本），提供 list_skills 工具 + /see-skills/skills 路由 + 极简灰度技能面板",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "license": "MIT"
+}

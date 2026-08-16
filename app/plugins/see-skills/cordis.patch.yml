@@ -1,0 +1,4 @@
+# see-skills bundle patch：插入 dshClient / host 插件行。
+- insert:
+    - id: see-skills
+      name: 'dsh-see-skills'
