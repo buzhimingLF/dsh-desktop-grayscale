@@ -65,7 +65,7 @@ jobs:
             app/release/*.zip
             app/release/*.AppImage
             app/release/*.deb
-            app/release/*.yml
+            app/release/latest*.yml
             app/release/*.blockmap
           if-no-files-found: error
           retention-days: 14
@@ -87,7 +87,7 @@ jobs:
         run: |
           mapfile -d '' assets < <(find release-assets -type f \( \
             -name '*.exe' -o -name '*.dmg' -o -name '*.zip' -o \
-            -name '*.AppImage' -o -name '*.deb' -o -name '*.yml' -o \
+            -name '*.AppImage' -o -name '*.deb' -o -name 'latest*.yml' -o \
             -name '*.blockmap' \) -print0)
           if [ "${#assets[@]}" -eq 0 ]; then
             echo 'No release files found' >&2
