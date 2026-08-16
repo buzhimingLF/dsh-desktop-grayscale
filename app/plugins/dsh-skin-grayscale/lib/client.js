@@ -18,7 +18,7 @@ window.__ModuleLoader__.load({
 			document.head.appendChild(tag);
 		}
 		// 深度灰度：皮肤 token 覆盖不到的地方（better-sidebar 编辑器语法色、xterm 终端）按亮度去色。
-		const DEEP_CSS = "body[data-dsh-grayscale] #root, body[data-dsh-grayscale] .cm-editor, body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
+		const DEEP_CSS = "body[data-dsh-grayscale] > div:not(#root), body[data-dsh-grayscale] #root, body[data-dsh-grayscale] .cm-editor, body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
 		function apply(ctx) {
 			const body = document.body;
 			body.dataset.dshGrayscale = "";

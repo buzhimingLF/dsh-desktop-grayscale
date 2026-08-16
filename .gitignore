@@ -4,6 +4,7 @@ node_modules/
 app/.build/
 app/.runtime/
 app/release/
+app/release-final/
 dist/
 release/
 
