@@ -18,7 +18,9 @@ window.__ModuleLoader__.load({
 			document.head.appendChild(tag);
 		}
 		// 深度灰度：皮肤 token 覆盖不到的地方（better-sidebar 编辑器语法色、xterm 终端）按亮度去色。
-		const DEEP_CSS = "body[data-dsh-grayscale] > div:not(#root), body[data-dsh-grayscale] #root, body[data-dsh-grayscale] .cm-editor, body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
+		// 注意：filter 会创建包含块，导致 position:fixed 的后代（better-sidebar 右侧栏、
+		// aionui 右侧/底部面板）错位/不弹出。所以只对叶子元素加 filter，绝不加到 #root 或顶层容器。
+		const DEEP_CSS = "body[data-dsh-grayscale] .cm-editor, body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
 		function apply(ctx) {
 			const body = document.body;
 			body.dataset.dshGrayscale = "";
