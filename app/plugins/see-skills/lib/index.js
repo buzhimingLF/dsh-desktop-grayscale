@@ -55,6 +55,7 @@ function skillRoots(config) {
   if (Array.isArray(config.skillsDirs)) roots.push(...config.skillsDirs)
   roots.push(join(homedir(), '.dsh', 'skills'))
   roots.push(join(homedir(), '.agents', 'skills'))
+  roots.push(join(homedir(), '.codex', 'skills'))
   if (typeof process.env.DSH_BUNDLED_SKILL_DIR === 'string' && process.env.DSH_BUNDLED_SKILL_DIR !== '') {
     roots.push(process.env.DSH_BUNDLED_SKILL_DIR)
   }

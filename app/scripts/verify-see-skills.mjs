@@ -1,6 +1,6 @@
 // 验证 see-skills 路由：boot → seat 全部插件 → curl /see-skills/skills。
 import { spawn } from 'node:child_process'
-import { mkdtempSync, readFileSync, writeFileSync, existsSync, symlinkSync, lstatSync, rmSync, renameSync, mkdirSync, readdirSync } from 'node:fs'
+import { mkdtempSync, readFileSync, writeFileSync, existsSync, symlinkSync, lstatSync, unlinkSync, rmdirSync, renameSync, mkdirSync, readdirSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -27,6 +27,18 @@ function seat(home) {
   for (const name of ALL) { if (!m.dsh.profile.bundles.includes(name)) m.dsh.profile.bundles.push(name) }
   const t = mp + '.tmp'; writeFileSync(t, JSON.stringify(m, null, 2) + '\n'); renameSync(t, mp)
 }
+
+// Windows junctions inside profiles/node_modules can make rmSync({recursive})
+// fail with EPERM. Unlink links first, then remove ordinary directories.
+function removeTree(target) {
+  if (!existsSync(target)) return
+  const stat = lstatSync(target)
+  if (stat.isSymbolicLink()) { unlinkSync(target); return }
+  if (!stat.isDirectory()) { unlinkSync(target); return }
+  for (const entry of readdirSync(target)) removeTree(join(target, entry))
+  rmdirSync(target)
+}
+
 function boot(home, timeoutMs) {
   return new Promise((resolve) => {
     const p = spawn(process.execPath, [BIN, 'web', '--port', '0'], { cwd: home, env: { ...process.env, DSH_HOME: home }, stdio: ['ignore', 'pipe', 'pipe'] })
@@ -42,7 +54,7 @@ const home = mkdtempSync(join(tmpdir(), 'dsh-route-'))
 const first = await boot(home, 30000); first.p?.kill(); await new Promise((r) => setTimeout(r, 500))
 seat(home)
 const second = await boot(home, 40000)
-if (!second.url) { console.log('boot failed:\n' + second.err.slice(-1500)); rmSync(home, { recursive: true, force: true }); process.exit(1) }
+if (!second.url) { console.log('boot failed:\n' + second.err.slice(-1500)); removeTree(home); process.exit(1) }
 await new Promise((r) => setTimeout(r, 3000))
 try {
   const res = await fetch(second.url + '/see-skills/skills', { signal: AbortSignal.timeout(5000) })
@@ -50,5 +62,5 @@ try {
   console.log('HTTP ' + res.status + '\n' + body.slice(0, 1500))
 } catch (e) { console.log('curl failed: ' + (e?.message ?? e)) }
 second.p?.kill()
-rmSync(home, { recursive: true, force: true })
+removeTree(home)
 console.log('cleaned')

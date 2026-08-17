@@ -1,6 +1,6 @@
-# DSH Desktop（极简灰度）
+# DSH Desktop Workbench / DSH Harness 工作台
 
-Electron 桌面版 DeepSeek Harness：内置锁定版本的 `dsh web` 运行时、官方 Web UI、精选插件和无边框灰度界面。安装包不要求用户预装 Node.js、pnpm 或 `dsh` CLI。
+DSH Harness 工作台发行版：内置锁定版本的 `dsh web` 运行时、官方 Web UI、极简灰度 + 玻璃工作台、智能路由 preset、Skills 查看器和精选插件。安装包不要求用户预装 Node.js、pnpm 或 `dsh` CLI。
 
 ## 开发运行
 
@@ -18,6 +18,8 @@ pnpm dev
 运行时包含 modlens、better-sidebar、task-board、git-graph、aionui-panel、web-ui-settings、describe-image、skin-center、灰度皮肤、技能查看、玻璃拟态皮肤和 `dsh-routing-suite` 智能路由模式。聚合包及不稳定的额外插件未被打入安装包。
 
 「智能路由模式」只在该模式下生效：它读取会话中的第一条真实用户任务，自动选择检查优先或直接执行，并通过公开的 `system-prompt/assemble` 边界追加一段短提示。它不读取文件、不执行命令、不裁剪工具，也不产生额外模型请求。
+
+Skills 查看器会把 `~/.dsh/skills`、`~/.agents/skills`、`~/.codex/skills`、`DSH_BUNDLED_SKILL_DIR` 和内置 modlens 技能统一整理为结构化清单，并同时提供 `list_skills`、`GET /see-skills/skills` 与侧边栏「技能」tab。技能目录契约和安全要求见 [../docs/SKILLS.md](../docs/SKILLS.md)。
 
 ## 本地打包
 

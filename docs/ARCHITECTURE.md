@@ -58,14 +58,16 @@ First boot creates the profile, so the app seats plugins **after** readiness and
 
 ## The grayscale skin
 
-`plugins/dsh-skin-grayscale` is generated from a reference dsh-web-ui skin: every `--dsw-*` token (and the alias/specific layers) is desaturated by Rec.709 perceptual luminance, preserving the light/dark contrast hierarchy. A `DEEP_CSS` layer additionally grayscales the CodeMirror editor and the xterm terminal. Generation: `pnpm generate:skin`.
+`plugins/dsh-skin-grayscale` is generated from a reference dsh-web-ui skin: every `--dsw-*` token (and the alias/specific layers) is desaturated by Rec.709 perceptual luminance, preserving the light/dark contrast hierarchy. The bundle gives its token declarations priority over the official inline theme variables, and a `DEEP_CSS` layer grayscales the editor, terminal, UI root, and skin-provided background layers. The glass layer remains visible after desaturation. Generation: `pnpm generate:skin`.
 
 ## The see-skills plugin
 
 `plugins/see-skills`:
 
-- host: registers a model-facing `list_skills` tool and a `GET /see-skills/skills` route; both return structured JSON (name / description / sections / references / scripts / preview) by scanning `~/.dsh/skills`, `~/.agents/skills` and the bundled modlens skill dir;
+- host: registers a model-facing `list_skills` tool and a `GET /see-skills/skills` route; both return structured JSON (name / description / sections / references / scripts / preview) by scanning `~/.dsh/skills`, `~/.agents/skills`, `~/.codex/skills`, an optional `DSH_BUNDLED_SKILL_DIR`, and the bundled modlens skill dir;
 - client: registers a "技能" tab in better-sidebar (`ctx.betterSidebar.registerTab`) rendering that inventory.
+
+The public file and safety contract is documented in [docs/SKILLS.md](SKILLS.md).
 
 ## The dsh-routing-suite plugin
 

@@ -1,9 +1,9 @@
 <p align="center">
   <h1 align="center">DSH Desktop</h1>
   <p align="center">
-    A <b>frameless, minimal-grayscale desktop client</b> for
+    A <b>DSH Harness workbench distribution</b> for
     <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness (DSH)</a> —<br/>
-    official <code>dsh web</code> UI in an Electron shell, with a curated, forked plugin stack pre-installed.
+    embedded runtime, minimal-grayscale workspace, Smart routing, Skills discovery, and a curated plugin stack.
   </p>
 </p>
 
@@ -18,7 +18,23 @@
 
 ## What is it
 
-**DSH Desktop** turns the DeepSeek Harness web GUI into a standalone desktop app with a clean, Codex-like window (no menu bar, frameless, custom title bar) and a "minimal grayscale" look, plus a curated set of community plugins, forked and adapted to ship **offline** with the app.
+**DSH Desktop** is the distributable, opinionated **DSH Harness workbench**. It packages the locked DSH runtime, the official `dsh web` UI, an opinionated minimal-grayscale surface, a selectable Smart routing preset, a Skills discovery contract, and a curated plugin stack into an offline-capable application.
+
+The Electron window is only the delivery shell. The product experience is the combination of:
+
+| Layer | What is included |
+|---|---|
+| DSH runtime | `@deepseek-ai/dsh@0.1.0-rc.6`, launched from the bundled closure |
+| Default workbench | Minimal grayscale tokens, grayscale background/editor/terminal treatment, and glass panes |
+| Agent behavior | Standard DSH capability plus the selectable `routing-suite` Smart routing preset |
+| Skills | `list_skills`, `/see-skills/skills`, the Skills sidebar tab, and user skill discovery |
+| Extensions | Curated forked plugins, vendored with license/provenance notices |
+
+This is not a generic Electron wrapper and it does not replace DSH's model or
+provider layer. Users configure their provider, model, credentials, and local
+skill directories through DSH. The app preserves the standard tool/context
+surface so a capable model such as DeepSeek V4 Pro can be evaluated through the
+same public DSH workflow rather than through a reduced demo harness.
 
 It consumes only DSH's **public boundary** — the official `dsh web` UI — and never patches DSH source. The runtime is bundled, so end users need **no Node.js and no `dsh` CLI** installed.
 
@@ -28,10 +44,51 @@ It consumes only DSH's **public boundary** — the official `dsh web` UI — and
 - 📦 **Bundled DSH runtime** — spawns `dsh web --port 0` on Electron's Node, loads the official Web UI; shares `~/.dsh` sessions & credentials with the CLI.
 - 🔌 **Offline plugin pre-seating** — the plugin closure is materialized via `pnpm deploy --node-linker=hoisted` and seated into `dsh.profile.bundles` + `profiles/node_modules` symlinks on first launch.
 - 🎨 **Minimal grayscale skin** (`dsh-skin-grayscale`) — every DSH design token desaturated by perceptual luminance; editor & terminal deep-grayscaled.
+- 🖼️ **Grayscale-first workbench** — the default bundled surface activates the grayscale skin over both token-driven UI and skin-provided background layers while retaining translucent glass depth.
 - 🧊 **Glassmorphism theme** (`dsh-client-ui-aqua`, forked from DSH-Transparent-UI-Plugin) — frosted glass panes, adjustable blur/frost/backdrop.
 - 🛠️ **Skills viewer** (`dsh-see-skills`) — `list_skills` tool + `/see-skills/skills` route + a sidebar "Skills" tab, structured output following modlens' evidence contract.
+- 🧠 **Configured Skills compatibility** — discovers DSH, `.agents`, `.codex`, environment-provided, and bundled skill roots; private skill files stay on the user's machine and are not copied into the public repository.
 - 🧭 **Task-aware routing** (`dsh-routing-suite`) — a selectable Smart routing mode that chooses inspect-first or direct execution from the first durable user task, without extra model calls or tool restrictions.
 - 🧩 **Curated plugin stack** — modlens (vision), better-sidebar (workbench), task-board, git-graph, aionui right-panel, describe-image, skin-center, and Smart routing.
+
+## Built-in modes and operating contract
+
+### Minimal grayscale mode
+
+The default visual profile is the **minimal grayscale workbench**. The bundled
+skin desaturates DSH design tokens using perceptual luminance, gives the editor
+and terminal a deep grayscale treatment, and also covers background layers that
+are outside the official UI root. The glass layer remains enabled, so hierarchy,
+translucency, blur, and contrast are preserved without brand-blue accents.
+
+### Smart routing mode
+
+`dsh-routing-suite` contributes a selectable Agent preset named `routing-suite`.
+When that preset is selected, it reads the first durable user task and chooses
+one of three modes:
+
+- `inspect-first` for maintenance, debugging, audit, and investigation work;
+- `direct` for creation and implementation work;
+- `neutral` when the task is ambiguous or empty.
+
+It appends only its own short `routing-suite-guidance` section to the public
+`system-prompt/assemble` boundary. It preserves the persona, contexts, tools,
+and other DSH assembly fields. It does not execute files or processes, filter
+tools, add another LLM request, or change the DeepSeek model configuration.
+
+### Skills requirements
+
+Skills are a first-class part of the workbench rather than a README-only claim.
+Each skill is a directory containing `SKILL.md`, with optional `references/`,
+`scripts/`, and `assets/`. The host exposes a structured inventory through the
+`list_skills` model tool and `GET /see-skills/skills`; the better-sidebar plugin
+renders the same inventory in the Skills tab.
+
+The runtime discovers `$DSH_HOME/skills`, `~/.agents/skills`, `~/.codex/skills`,
+the optional `DSH_BUNDLED_SKILL_DIR`, and the bundled modlens skill. See the
+[Skills contract](docs/SKILLS.md) for the frontmatter, discovery, safety, and
+contribution requirements. Private skill contents and credentials remain local
+and must never be committed.
 
 ## Bundled plugins
 
@@ -65,8 +122,9 @@ pnpm dev              # build the shell and launch Electron
 
 `pnpm dev` will:
 1. spawn the bundled `dsh web --port 0` (data dir `~/.dsh`, shared with the CLI);
-2. seat the plugins and the Smart routing mode into the `web` profile;
-3. open a frameless window loading the official Web UI.
+2. materialize the `routing-suite` Agent preset and seat the curated plugins into the `web` profile;
+3. activate the minimal grayscale + glass workbench surface;
+4. open a frameless window loading the official Web UI, with configured Skills discoverable from the user skill roots.
 
 ## Build the installer
 
@@ -99,7 +157,7 @@ Notes:
 - Native modules ship with platform prebuilds; `node-pty` uses N-API (ABI-stable), no Electron ABI rebuild is required.
 - Signing is intentionally disabled until platform-specific signing credentials are configured in CI.
 
-Pushing a tag such as `v0.1.0` runs the cross-platform release workflow and uploads all three platform packages to GitHub Releases.
+Pushing a semantic-version tag such as `v0.1.1` runs the cross-platform release workflow and uploads all three platform packages to GitHub Releases.
 
 ## Project structure
 
@@ -114,7 +172,7 @@ dsh-desktop/
 │  ├─ runtime/             bundled DSH runtime closure (package.json pins deps)
 │  ├─ scripts/             build / deploy / rebuild-native / generator tooling
 │  └─ electron-builder.yml
-├─ docs/                  architecture & design docs
+├─ docs/                  architecture, design, and Skills contract docs
 └─ .github/               CI & issue/PR templates
 ```
 
@@ -124,8 +182,8 @@ The desktop never imports DSH internals. It:
 
 1. resolves the DSH CLI (bundled closure first);
 2. spawns `dsh web --port 0` and parses the readiness line;
-3. seats the forked plugins: symlinks the deployed closure into `profiles/node_modules` and appends package names to `dsh.profile.bundles`;
-4. loads the official Web UI in a frameless `BrowserWindow`.
+3. materializes the selectable `routing-suite` preset, seats the forked plugins, and appends package names to `dsh.profile.bundles`;
+4. loads the official Web UI in a frameless `BrowserWindow`, where the grayscale/glass surface and Skills viewer are provided by client plugins.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 

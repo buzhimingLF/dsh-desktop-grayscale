@@ -1,9 +1,9 @@
 <p align="center">
   <h1 align="center">DSH Desktop</h1>
   <p align="center">
-    一个<b>无边框、极简灰度的桌面客户端</b>，为
+    一套<b>完整的 DSH Harness 工作台发行版</b>，为
     <a href="https://github.com/deepseek-ai/deepseek-harness">DeepSeek Harness（DSH）</a> 而生 ——<br/>
-    官方 <code>dsh web</code> UI + Electron 壳，预装一套精选、fork 后的插件栈。
+    内置运行时、极简灰度工作台、智能路由、Skills 发现和精选插件栈。
   </p>
 </p>
 
@@ -18,7 +18,21 @@
 
 ## 这是什么
 
-**DSH Desktop** 把 DeepSeek Harness 的 Web GUI 变成一个独立的桌面应用：干净、Codex 风格的窗口（无菜单栏、无边框、自定义标题栏）+「极简灰度」视觉，外加一套精选社区插件——全部 fork 改造后**随应用离线预装**。
+**DSH Desktop** 是一套有明确工作约定的 **DSH Harness 工作台发行版**。它把锁定版本的 DSH 运行时、官方 `dsh web` UI、极简灰度工作台、可选的智能路由 preset、Skills 发现契约和精选插件栈组合成一个可离线运行的应用。
+
+Electron 窗口只是交付载体，真正的产品能力由以下几层组成：
+
+| 层 | 内置内容 |
+|---|---|
+| DSH 运行时 | `@deepseek-ai/dsh@0.1.0-rc.6`，从内置闭包启动 |
+| 默认工作台 | 极简灰度 token、背景/编辑器/终端灰度处理和玻璃面板 |
+| Agent 行为 | DSH 标准能力 + 可选的 `routing-suite` 智能路由 preset |
+| Skills | `list_skills`、`/see-skills/skills`、侧边栏「技能」tab 和用户技能发现 |
+| 扩展 | 带许可证与来源说明的精选 fork 插件 |
+
+因此它不是一个通用 Electron 壳，也不会替换 DSH 的模型或 Provider 层。用户
+仍在 DSH 中配置 Provider、模型、凭据和本地技能目录；应用保留标准工具与上下文
+面，便于通过真实 DSH 工作流评估 DeepSeek V4 Pro 等模型，而不是运行被裁剪的演示 harness。
 
 它只消费 DSH 的**公开边界**（官方 `dsh web` UI），从不改 DSH 源码。运行时内置，最终用户**无需安装 Node.js，也无需安装 `dsh` CLI**。
 
@@ -28,10 +42,45 @@
 - 📦 **内置 DSH 运行时** —— 用 Electron 的 Node 拉起 `dsh web --port 0`，加载官方 Web UI；与 CLI 共享 `~/.dsh` 的会话与凭据。
 - 🔌 **插件离线预装** —— 通过 `pnpm deploy --node-linker=hoisted` 物化插件闭包，首次启动时 seat 进 `dsh.profile.bundles` + `profiles/node_modules` 符号链接。
 - 🎨 **极简灰度皮肤**（`dsh-skin-grayscale`）—— 按感知亮度对全部 DSH 设计 token 去色，编辑器/终端深度灰度。
+- 🖼️ **灰度优先工作台** —— 默认表面同时覆盖 token 驱动的 UI 和皮肤提供的背景层，保留玻璃透明层次。
 - 🧊 **玻璃拟态主题**（`dsh-client-ui-aqua`，fork 自 DSH-Transparent-UI-Plugin）—— 磨砂玻璃面板，可调模糊度/磨砂度/背景。
 - 🛠️ **技能查看插件**（`dsh-see-skills`）—— `list_skills` 工具 + `/see-skills/skills` 路由 + 侧边栏「技能」tab，结构化输出沿用 modlens 的证据契约。
+- 🧠 **用户 Skills 兼容** —— 自动发现 DSH、`.agents`、`.codex`、环境变量指定以及内置的技能目录；私有技能正文留在用户机器，不复制进公开仓库。
 - 🧭 **任务感知路由**（`dsh-routing-suite`）——可选的「智能路由模式」，根据首条真实任务自动选择“检查优先”或“直接执行”，不增加模型请求，也不裁剪工具。
 - 🧩 **精选插件栈** —— modlens（视觉）、better-sidebar（工作台）、task-board、git-graph、aionui 右面板、describe-image、skin-center 和智能路由。
+
+## 内置模式与运行契约
+
+### 极简灰度模式
+
+默认视觉是**极简灰度工作台**。内置皮肤按感知亮度对 DSH 设计 token 去色，
+并对编辑器、终端以及官方 UI 根节点之外的背景层做深度灰度处理。玻璃层仍然
+开启，因此保留面板层级、透明、模糊和对比度，只去掉品牌蓝等彩色强调。
+
+### 智能路由模式
+
+`dsh-routing-suite` 提供可选择的 `routing-suite` Agent preset。选择后，它读取
+首条真实用户任务并在三种模式中选择：
+
+- `inspect-first`：维护、调试、审计、排查类任务；
+- `direct`：创建和实现类任务；
+- `neutral`：任务为空或无法可靠判断时。
+
+它只通过公开的 `system-prompt/assemble` 边界追加自己的
+`routing-suite-guidance` 段落，保留 persona、上下文、工具和其它 DSH 字段。
+它不读写文件、不执行进程、不裁剪工具、不增加额外模型请求，也不修改 DeepSeek
+模型配置。
+
+### Skills 要求
+
+Skills 是工作台的一等能力，不是 README 里的一句宣传语。每个技能目录必须包含
+`SKILL.md`，可选 `references/`、`scripts/` 和 `assets/`。宿主通过模型可见的
+`list_skills` 工具和 `GET /see-skills/skills` 返回结构化清单，better-sidebar
+则在「技能」tab 中展示同一份数据。
+
+运行时会发现 `$DSH_HOME/skills`、`~/.agents/skills`、`~/.codex/skills`、可选的
+`DSH_BUNDLED_SKILL_DIR` 以及内置 modlens 技能。完整的 frontmatter、目录、安全和
+贡献要求见 [Skills 技能契约](docs/SKILLS.md)。私有技能正文与凭据留在本机，绝不提交。
 
 ## 预装插件
 
@@ -65,8 +114,9 @@ pnpm dev              # 构建壳并启动 Electron
 
 `pnpm dev` 会：
 1. 用内置运行时拉起 `dsh web --port 0`（数据目录 `~/.dsh`，与 CLI 共享）；
-2. 把插件和「智能路由模式」seat 进 `web` profile；
-3. 打开无边框窗口加载官方 Web UI。
+2. 物化 `routing-suite` Agent preset，并把精选插件 seat 进 `web` profile；
+3. 激活极简灰度 + 玻璃工作台表面；
+4. 打开无边框窗口加载官方 Web UI，并从用户技能目录发现已配置 Skills。
 
 ## 打包安装器
 
@@ -98,7 +148,7 @@ pnpm dist             # prepare-runtime → verify → build → electron-builde
 - 原生模块随包附平台 prebuild；`node-pty` 使用 N-API（ABI 稳定），无需 Electron ABI 重建。
 - 签名暂未启用，待 CI 配置各平台签名凭据后再开启。
 
-推送形如 `v0.1.0` 的版本标签后，跨平台 Release 工作流会自动构建并上传 Windows、macOS、Linux 安装包。
+推送形如 `v0.1.1` 的语义化版本标签后，跨平台 Release 工作流会自动构建并上传 Windows、macOS、Linux 安装包。
 
 ## 目录结构
 
@@ -113,7 +163,7 @@ dsh-desktop/
 │  ├─ runtime/             内置 DSH 运行时闭包（package.json 钉版本）
 │  ├─ scripts/             构建 / 部署 / 原生重建 / 生成器工具
 │  └─ electron-builder.yml
-├─ docs/                  架构与设计文档
+├─ docs/                  架构、设计与 Skills 契约文档
 └─ .github/               CI 与 issue/PR 模板
 ```
 
@@ -123,8 +173,8 @@ dsh-desktop/
 
 1. 解析 DSH CLI（优先内置闭包）；
 2. 拉起 `dsh web --port 0` 并解析 readiness 行；
-3. seat fork 插件：把部署闭包符号链接进 `profiles/node_modules`，并把包名追加进 `dsh.profile.bundles`；
-4. 在无边框 `BrowserWindow` 中加载官方 Web UI。
+3. 物化可选择的 `routing-suite` preset，seat fork 插件并把包名追加进 `dsh.profile.bundles`；
+4. 在无边框 `BrowserWindow` 中加载官方 Web UI，由客户端插件提供灰度/玻璃表面和 Skills 查看器。
 
 详见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
 
