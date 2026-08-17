@@ -2,6 +2,13 @@
 
 本项目的所有重要变更都会记录在此文件中。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.4] - 2026-08-17
+
+### 修复
+
+- 修复 Windows 下 `pnpm.cmd` 重试启动的 `spawn EINVAL`，确保重试逻辑真正执行安装器构建。
+- 保留 Electron 下载缓存、瞬时网络重试和 v0.1.3 的 Release 瘦身策略。
+
 ## [0.1.3] - 2026-08-17
 
 ### 变更

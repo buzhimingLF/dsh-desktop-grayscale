@@ -5,7 +5,12 @@ const command = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 
 function runOnce() {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, ['dist'], { stdio: 'inherit', env: process.env })
+    const child = spawn(command, ['dist'], {
+      stdio: 'inherit',
+      env: process.env,
+      // Windows exposes pnpm as a .cmd shim, which requires shell dispatch.
+      shell: process.platform === 'win32',
+    })
     child.once('error', reject)
     child.once('exit', (code, signal) => resolve({ code: code ?? 1, signal }))
   })
