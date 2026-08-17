@@ -12,6 +12,9 @@ jobs:
   build:
     name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
+    env:
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     strategy:
       fail-fast: false
       matrix:
@@ -49,6 +52,14 @@ jobs:
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
 
+      - name: Cache Electron downloads
+        uses: actions/cache@v4
+        with:
+          path: .cache
+          key: electron-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('app/pnpm-lock.yaml', 'app/package.json') }}
+          restore-keys: |
+            electron-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Install dependencies
         working-directory: app
         run: pnpm install --frozen-lockfile
@@ -59,7 +70,7 @@ jobs:
           # Public builds are intentionally unsigned until signing credentials
           # are configured in GitHub Actions secrets.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: pnpm dist
+        run: pnpm dist:retry
 
       - name: Upload platform artifacts
         uses: actions/upload-artifact@v4

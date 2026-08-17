@@ -2,6 +2,14 @@
 
 本项目的所有重要变更都会记录在此文件中。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.3] - 2026-08-17
+
+### 变更
+
+- 延续 v0.1.2 设计的 Release 瘦身：排除运行时不需要的 source map 与 PDB 调试符号。
+- CI 缓存 Electron/electron-builder 下载，并对瞬时网络失败自动重试三次。
+- README 和发布路径统一指向当前可发布版本。
+
 ## [0.1.2] - 2026-08-17
 
 ### 变更

@@ -54,7 +54,7 @@ Electron 窗口只是交付载体，真正的产品能力由以下几层组成�
 | Skills 客户端体验 | 增加 better-sidebar「技能」tab，和宿主使用同一份清单；补充 `SKILL.md` frontmatter、references/scripts/assets 结构、安全规则和贡献契约。 | Skills 是真正的一等工作台能力，而不是 README 里的宣传语。 |
 | 视觉与工作台集成 | 将 modlens 视觉桥、`describe_image`、better-sidebar、任务看板、Git 图、AionUI 右面板、Web UI 设置和皮肤中心整理为经过验证的精选栈。 | 视觉、文件、编辑器、终端、Git、任务、预览和设置集中在一个 DSH 工作台中。 |
 | 发布工程 | 增加 Windows x64、macOS Intel/Apple Silicon、Linux x64 安装包；提供未签名提示；维护中英文文档、发布检查表、Tag/版本 CI 校验、密钥扫描、runtime/routing/Skills/安装器烟测。 | Release 文件和 README 声明会在发布前对照真实产品检查。 |
-| 下载优化 | `v0.1.2` 排除运行时不需要的 source map 与 PDB 调试符号，保持标准安装包压缩；完整离线运行时仍然保留。 | 下载包更小，但首次启动不会退化成依赖后台下载的半成品空壳。 |
+| 下载优化 | `v0.1.3` 排除运行时不需要的 source map 与 PDB 调试符号，保持标准安装包压缩；CI 缓存 Electron 下载并自动重试瞬时失败。 | 下载包更小，跨平台发布更可靠，首次启动也不会退化成依赖后台下载的半成品空壳。 |
 
 ### 上游关系与责任边界
 
@@ -129,7 +129,7 @@ Skills 是工作台的一等能力，不是 README 里的一句宣传语。每�
 
 ### 下载速度与安装包策略
 
-`v0.1.2` 是第一版瘦身 Release：排除运行时不读取的 source map 和 PDB 调试符号，同时保持标准安装包压缩。DSH 运行时、官方 Web UI、智能路由、极简灰度/玻璃工作台、Skills 查看器和精选插件仍然完整放在安装包中，因此首次启动不依赖后台下载完成，也可以在离线环境启动。
+`v0.1.3` 是第一版瘦身 Release：排除运行时不读取的 source map 和 PDB 调试符号，同时保持标准安装包压缩。DSH 运行时、官方 Web UI、智能路由、极简灰度/玻璃工作台、Skills 查看器和精选插件仍然完整放在安装包中，因此首次启动不依赖后台下载完成，也可以在离线环境启动。
 
 我们暂时不会把稳定版简单拆成“先启动，再慢慢复制插件文件”。DSH 插件通过 profile manifest 和依赖闭包加载，半途复制可能造成运行时能启动但 Web UI 插件失败。未来可以设计在线轻量引导器：将可选插件包以带校验、断点续传、回滚能力的原子包下载到用户数据目录，同时保留完整离线包作为兜底。在协议完成并经过跨平台验证之前，完整压缩包是更可靠的开箱即用路径。
 
@@ -205,8 +205,8 @@ pnpm dist
 - 原生模块随包附平台 prebuild；`node-pty` 使用 N-API（ABI 稳定），无需 Electron ABI 重建。
 - 签名暂未启用，待 CI 配置各平台签名凭据后再开启。
 
-推送与 `app/package.json` 版本一致的语义化标签（例如版本为 `0.1.2` 时使用
-`v0.1.2`），跨平台 Release 工作流会自动构建并上传 Windows、macOS Intel/Apple
+推送与 `app/package.json` 版本一致的语义化标签（例如版本为 `0.1.3` 时使用
+`v0.1.3`），跨平台 Release 工作流会自动构建并上传 Windows、macOS Intel/Apple
 Silicon、Linux x64 安装包。不要创建与 `app/package.json` 不一致的标签。
 
 ## 故障排查

@@ -59,7 +59,7 @@ UI, upstream plugin repositories, and a generic Electron wrapper.
 | Skills client experience | Added a better-sidebar Skills tab backed by the same host inventory; documented `SKILL.md` frontmatter, references/scripts/assets layout, safety rules, and contribution contract. | Skills are a real workbench capability rather than a README-only promise. |
 | Vision and workbench integration | Integrated the modlens vision bridge, `describe_image`, better-sidebar, task board, git graph, AionUI right panel, web UI settings, and skin center as a tested curated stack. | Vision, files, editor, terminal, Git, jobs, preview, and settings work together in one DSH workbench. |
 | Release engineering | Added Windows x64, macOS Intel/ARM64, and Linux x64 installers; unsigned-package guidance; bilingual documentation; release checklist; tag-to-package-version CI validation; secret scans; runtime, routing, Skills, and installer smoke checks. | Release assets and README claims are checked against the actual product before publishing. |
-| Download optimization | Release `v0.1.2` removes runtime-unused source maps and PDB debug symbols while keeping the complete offline runtime and standard installer compression. | Smaller downloads without turning the first launch into a partially installed shell. |
+| Download optimization | Release `v0.1.3` removes runtime-unused source maps and PDB debug symbols while keeping the complete offline runtime and standard installer compression; CI caches Electron downloads and retries transient failures. | Smaller downloads and more reliable cross-platform publishing without turning the first launch into a partially installed shell. |
 
 ### Upstream relationship and responsibility boundary
 
@@ -146,7 +146,7 @@ and must never be committed.
 
 ### Download speed and package strategy
 
-The `v0.1.2` package is the first lean Release: runtime-unused source maps and
+The `v0.1.3` package is the first lean Release: runtime-unused source maps and
 PDB debug symbols are excluded while standard installer compression is kept. The
 DSH runtime, official Web UI, Smart routing, grayscale/glass surface, Skills
 viewer, and curated plugins remain inside the package, so the first launch is
@@ -242,7 +242,7 @@ Notes:
 - Signing is intentionally disabled until platform-specific signing credentials are configured in CI.
 
 Pushing a semantic-version tag matching `app/package.json` (for example,
-`v0.1.2` for version `0.1.2`) runs the cross-platform release workflow and
+`v0.1.3` for version `0.1.3`) runs the cross-platform release workflow and
 uploads Windows, macOS Intel/Apple Silicon, and Linux x64 packages to GitHub
 Releases. Do not create a tag whose version differs from `app/package.json`.
 
