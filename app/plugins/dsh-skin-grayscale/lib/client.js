@@ -21,6 +21,76 @@ window.__ModuleLoader__.load({
 		// 注意：filter 会创建包含块，导致 position:fixed 的后代（better-sidebar 右侧栏、
 		// aionui 右侧/底部面板）错位/不弹出。所以只对叶子元素加 filter，绝不加到 #root 或顶层容器。
 		const DEEP_CSS = "body[data-dsh-grayscale] .xterm { filter: grayscale(1); }";
+
+		// —— 性能模式：三档循环切换 Aqua 玻璃特效，缓解卡顿 ——
+		const PERF_MODES = [
+			{ id: "eco", label: "省电", conf: { mode: "compat", blur: "2", whale: "false", critters: "false", background: "solid" } },
+			{ id: "balanced", label: "平衡", conf: { mode: "compat", blur: "8", whale: "false", critters: "true", background: "fluid" } },
+			{ id: "rich", label: "绚丽", conf: { mode: "mica", blur: "14", whale: "true", critters: "true", background: "fluid" } },
+		]
+		const PERF_KEY = "dsh.grayscale.perf"
+		const AQUA_KEYS = {
+			mode: "dsh.ui-aqua.mode",
+			blur: "dsh.ui-aqua.blur",
+			whale: "dsh.ui-aqua.whale",
+			critters: "dsh.ui-aqua.critters",
+			background: "dsh.ui-aqua.background",
+		}
+		const PERF_CSS = [
+			"#dsh-perf{position:fixed;right:14px;bottom:14px;z-index:2147483000;display:flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--dsw-alias-border-l2,#333);border-radius:999px;background:var(--dsw-alias-bg-layer-1,#1a1a1a);color:var(--dsw-alias-label-primary,#eee);font-size:12px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.35);user-select:none}",
+			"#dsh-perf:hover{background:var(--dsw-alias-bg-layer-2,#242424)}",
+			"#dsh-perf .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}",
+		].join("")
+
+		function readPerf() {
+			try {
+				const v = localStorage.getItem(PERF_KEY)
+				return v === "balanced" || v === "rich" ? v : "eco"
+			} catch { return "eco" }
+		}
+		function applyPerf(mode) {
+			const m = PERF_MODES.find((x) => x.id === mode) ?? PERF_MODES[0]
+			try {
+				localStorage.setItem(PERF_KEY, m.id)
+				for (const [k, v] of Object.entries(m.conf)) {
+					localStorage.setItem(AQUA_KEYS[k], v)
+				}
+				window.dispatchEvent(new StorageEvent("storage", { key: AQUA_KEYS.mode }))
+			} catch { /* localStorage 失败则仅内存切换 */ }
+			return m
+		}
+
+		function injectPerfSwitcher(ctx) {
+			if (document.getElementById("dsh-perf") !== null || document.body === null) return
+			const style = document.createElement("style")
+			style.id = "dsh-perf-style"
+			style.textContent = PERF_CSS
+			document.head.appendChild(style)
+
+			const btn = document.createElement("button")
+			btn.id = "dsh-perf"
+			btn.type = "button"
+			btn.innerHTML = '<span class="dot"></span><span class="lbl">性能·省电</span>'
+
+			const order = ["eco", "balanced", "rich"]
+			function refreshLabel() {
+				const cur = readPerf()
+				const m = PERF_MODES.find((x) => x.id === cur) ?? PERF_MODES[0]
+				const lbl = btn.querySelector(".lbl")
+				if (lbl !== null) lbl.textContent = "性能·" + m.label
+			}
+			btn.addEventListener("click", () => {
+				const cur = readPerf()
+				const next = order[(order.indexOf(cur) + 1) % order.length]
+				applyPerf(next)
+				refreshLabel()
+				btn.querySelector(".lbl").textContent = "性能·" + (PERF_MODES.find((x) => x.id === next) ?? PERF_MODES[0]).label + "（已生效，必要时刷新）"
+			})
+			document.body.appendChild(btn)
+			refreshLabel()
+			ctx.effect(() => () => { btn.remove(); style.remove() }, "grayscale perf switcher")
+		}
+
 		function apply(ctx) {
 			const body = document.body;
 			body.dataset.dshGrayscale = "";
@@ -29,6 +99,13 @@ window.__ModuleLoader__.load({
 			deep.dataset.pluginCss = "dsh-skin-grayscale/deep.module.css";
 			deep.textContent = DEEP_CSS;
 			document.head.appendChild(deep);
+			// 首次加载时按已存档位应用一次 Aqua 性能配置，确保默认省电。
+			if (typeof localStorage !== "undefined") {
+				try {
+					if (localStorage.getItem(PERF_KEY) === null) applyPerf("eco")
+				} catch {}
+			}
+			injectPerfSwitcher(ctx);
 			ctx.effect(() => () => {
 				delete body.dataset.dshGrayscale;
 				deep.remove();
