@@ -1,0 +1,56 @@
+diff --git a/lib/worker.cjs b/lib/worker.cjs
+index 14f4584c748bbec5a1a0282afe486c098668dfe6..b3964370934db3a9dc0e5e2c97e3f9229d42e416 100644
+--- a/lib/worker.cjs
++++ b/lib/worker.cjs
+@@ -18,8 +18,10 @@
+ * `koffi.decode(addr, 'str16')` would dereference it as a pointer — crash
+ * on real Windows — so view the memory directly instead.
+ */
+-function readUtf16(koffi, address) {
+-	const bytes = Buffer.from(koffi.view(address, 32768));
++function readUtf16(koffi, address, readMemory) {
++	// Electron 的 Node 下 koffi.view(address, 32768) 会 abort（读 COM 返回的 UTF-16
++	// 路径时崩溃）。改用 ReadProcessMemory 逐字节读，直到 NUL 终止。
++	const bytes = readMemory(address);
+ 	let end = 0;
+ 	while (end + 1 < bytes.length && bytes[end] !== 0) end += 2;
+ 	return bytes.toString("utf16le", 0, end);
+@@ -84,6 +86,13 @@ async function loadWin32DialogBindings() {
+ 	]);
+ 	const coTaskMemFree = ole32.func("__stdcall", "CoTaskMemFree", "void", ["void *"]);
+ 	const getCurrentThreadId = kernel32.func("__stdcall", "GetCurrentThreadId", "uint32", []);
++	const readProcessMemory = kernel32.func("__stdcall", "ReadProcessMemory", "int32", [
++		"intptr",
++		"intptr",
++		"void *",
++		"uint64",
++		"void *"
++	]);
+ 	const protoShow = koffi.proto("int32 __stdcall DshDialogShow(void *self, void *owner)");
+ 	const protoSetOptions = koffi.proto("int32 __stdcall DshDialogSetOptions(void *self, uint32 options)");
+ 	const protoSetTitle = koffi.proto("int32 __stdcall DshDialogSetTitle(void *self, str16 title)");
+@@ -96,6 +105,15 @@ async function loadWin32DialogBindings() {
+ 		const fn = koffi.decode(vtable, slot * pointerSize, "void *");
+ 		return (...args) => koffi.call(fn, proto, self, ...args);
+ 	};
++	/** 从当前进程读内存，避开 koffi.view 在 Electron Node 下的 abort。 */
++	const readMemory = (address) => {
++		const out = Buffer.alloc(32768);
++		const bytesRead = Buffer.alloc(8);
++		const ok = readProcessMemory(-1, address, out, 32768, bytesRead);
++		if (ok === 0) throw new Error(`ReadProcessMemory failed`);
++		const n = Number(bytesRead.readBigUInt64LE(0));
++		return out.subarray(0, n);
++	};
+ 	return {
+ 		setThreadDpiAwareness: () => {
+ 			let setContext;
+@@ -129,7 +147,7 @@ async function loadWin32DialogBindings() {
+ 						const nameOut = [null];
+ 						const gotName = method(item, SLOT_GET_DISPLAY_NAME, protoGetDisplayName)(SIGDN_FILESYSPATH, nameOut);
+ 						if (gotName < 0) return { hr: gotName };
+-						const path = readUtf16(koffi, nameOut[0]);
++						const path = readUtf16(koffi, nameOut[0], readMemory);
+ 						coTaskMemFree(nameOut[0]);
+ 						return {
+ 							hr: gotName,
