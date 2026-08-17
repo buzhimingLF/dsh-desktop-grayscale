@@ -7,12 +7,7 @@
   </p>
 </p>
 
-<p align="center">
-  <a href="./LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="https://github.com/buzhimingLF/dsh-desktop-grayscale"><img alt="Electron" src="https://img.shields.io/badge/Electron-39-47848f?logo=electron&logoColor=white"></a>
-  <a href="https://github.com/buzhimingLF/dsh-desktop-grayscale"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white"></a>
-  <a href="https://github.com/buzhimingLF/dsh-desktop-grayscale"><img alt="platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey"></a>
-</p>
+MIT License · Electron 39 · TypeScript 5 · Windows / macOS / Linux
 
 > 中文 · [English](./README.md)
 
@@ -62,16 +57,16 @@ DSH 运行时和第三方项目仍在包元数据、许可证文件和来源说�
 
 ## 特性
 
-- 🖥️ **无边框窗口 + 自定义标题栏** —— 没有默认的 File/Edit 菜单栏；拖拽区 + 最小化/最大化/关闭按钮。
-- 📦 **内置 DSH 运行时** —— 用 Electron 的 Node 拉起 `dsh web --port 0`，加载官方 Web UI；与 CLI 共享 `~/.dsh` 的会话与凭据。
-- 🔌 **插件离线预装** —— 通过 `pnpm deploy --node-linker=hoisted` 物化插件闭包，首次启动时 seat 进 `dsh.profile.bundles` + `profiles/node_modules` 符号链接。
-- 🎨 **极简灰度皮肤**（`dsh-skin-grayscale`）—— 按感知亮度对全部 DSH 设计 token 去色，编辑器/终端深度灰度。
-- 🖼️ **灰度优先工作台** —— 默认表面同时覆盖 token 驱动的 UI 和皮肤提供的背景层，保留玻璃透明层次。
-- 🧊 **玻璃拟态主题**（`dsh-client-ui-aqua`，fork 自 DSH-Transparent-UI-Plugin）—— 磨砂玻璃面板，可调模糊度/磨砂度/背景。
-- 🛠️ **技能查看插件**（`dsh-see-skills`）—— `list_skills` 工具 + `/see-skills/skills` 路由 + 侧边栏「技能」tab，结构化输出沿用 modlens 的证据契约。
-- 🧠 **用户 Skills 兼容** —— 自动发现 DSH、`.agents`、`.codex`、环境变量指定以及内置的技能目录；私有技能正文留在用户机器，不复制进公开仓库。
-- 🧭 **任务感知路由**（`dsh-routing-suite`）——可选的「智能路由模式」，根据首条真实任务自动选择“检查优先”或“直接执行”，不增加模型请求，也不裁剪工具。
-- 🧩 **精选插件栈** —— modlens（视觉）、better-sidebar（工作台）、task-board、git-graph、aionui 右面板、describe-image、skin-center 和智能路由。
+- **无边框窗口 + 自定义标题栏** —— 没有默认的 File/Edit 菜单栏；拖拽区 + 最小化/最大化/关闭按钮。
+- **内置 DSH 运行时** —— 用 Electron 的 Node 拉起 `dsh web --port 0`，加载官方 Web UI；与 CLI 共享 `~/.dsh` 的会话与凭据。
+- **插件离线预装** —— 通过 `pnpm deploy --node-linker=hoisted` 物化插件闭包，首次启动时 seat 进 `dsh.profile.bundles` + `profiles/node_modules` 符号链接。
+- **极简灰度皮肤**（`dsh-skin-grayscale`）—— 按感知亮度对全部 DSH 设计 token 去色，编辑器/终端深度灰度。
+- **灰度优先工作台** —— 默认表面同时覆盖 token 驱动的 UI 和皮肤提供的背景层，保留玻璃透明层次。
+- **玻璃拟态主题**（`dsh-client-ui-aqua`，fork 自 DSH-Transparent-UI-Plugin）—— 磨砂玻璃面板，可调模糊度/磨砂度/背景。
+- **技能查看插件**（`dsh-see-skills`）—— `list_skills` 工具 + `/see-skills/skills` 路由 + 侧边栏「技能」tab，结构化输出沿用 modlens 的证据契约。
+- **用户 Skills 兼容** —— 自动发现 DSH、`.agents`、`.codex`、环境变量指定以及内置的技能目录；私有技能正文留在用户机器，不复制进公开仓库。
+- **任务感知路由**（`dsh-routing-suite`）——可选的「智能路由模式」，根据首条真实任务自动选择“检查优先”或“直接执行”，不增加模型请求，也不裁剪工具。
+- **精选插件栈** —— modlens（视觉）、better-sidebar（工作台）、task-board、git-graph、aionui 右面板、describe-image、skin-center 和智能路由。
 
 ## 内置模式与运行契约
 
