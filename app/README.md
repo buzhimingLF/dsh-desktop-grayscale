@@ -53,7 +53,7 @@ pnpm pack:dir
 
 ## GitHub Release
 
-推送与 `app/package.json` 版本一致的标签（例如 `v0.1.1`）后，GitHub Actions
+推送与 `app/package.json` 版本一致的标签（例如 `v0.1.2`）后，GitHub Actions
 会在 Windows、macOS Intel/Apple Silicon、Linux 原生 runner 上分别构建，并自动将
 安装包上传到 [Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases)。
 发布前请阅读仓库根目录的[安装器发布检查表](../docs/RELEASE-CHECKLIST.md)。

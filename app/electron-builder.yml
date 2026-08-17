@@ -11,13 +11,20 @@ files:
   - "!node_modules/**/*"
 
 extraResources:
-  # 内置 dsh 运行时闭包 + 3 个插件，整体随包分发（位于 app.asar 之外，子进程按普通文件读取）。
+  # 内置 dsh 运行时闭包 + 精选插件，整体随包分发（位于 app.asar 之外，子进程按普通文件读取）。
   # .runtime/ 由 pnpm deploy 物化（hoisted 平铺，peer 解析正确）。
   - from: .runtime/node_modules
     to: dsh-runtime/node_modules
+    # source map 与 PDB 只用于开发调试，运行时不读取；排除它们可显著减少
+    # Release 下载量，同时保留完整 DSH 核心、官方 UI、插件和原生运行库。
+    filter:
+      - '**/*'
+      - '!**/*.map'
+      - '!**/*.pdb'
 
 asar: true
 npmRebuild: false
+# 保持标准压缩；实际体积优化来自排除运行时不读取的调试文件。
 compression: normal
 artifactName: dsh-desktop-${version}-${os}-${arch}.${ext}
 

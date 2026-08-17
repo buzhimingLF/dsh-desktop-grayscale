@@ -36,6 +36,30 @@ Electron 窗口只是交付载体，真正的产品能力由以下几层组成�
 
 它只消费 DSH 的**公开边界**（官方 `dsh web` UI），从不改 DSH 源码。运行时内置，最终用户**无需安装 Node.js，也无需安装 `dsh` CLI**。
 
+## 相对上游的二次开发成果
+
+本仓库不是简单的一行 Fork，也不是把若干插件未经整理地拼在一起。下面列出本仓库在 DSH 官方 Web UI、上游插件仓库和通用 Electron 壳之上实际维护的产品化、功能新增、逻辑调整、问题修复和体验改良。
+
+| 方向 | 我们完成的优化、迭代、功能或修复 | 用户得到的结果 |
+|---|---|---|
+| 桌面产品化 | 基于 DSH 公开 `dsh web` 边界构建 Electron 39 桌面应用；加入无边框窗口、自定义标题栏、去默认菜单、单实例锁、安全外链处理、工作区解析和子进程回收。 | Windows/macOS/Linux 原生桌面体验，同时保留官方 Web UI 和 DSH 会话。 |
+| 运行时交付 | 锁定 `@deepseek-ai/dsh@0.1.0-rc.6`；打包生产依赖闭包；使用随机可用端口启动本地运行时；先探测 `host.describe` 再显示窗口；首启建 profile 后做一次受控重启。 | Release 不需要另外安装 Node.js、pnpm 或 `dsh` CLI，启动失败不会只显示空白窗口。 |
+| 依赖与插件挂载 | 用 `pnpm deploy --node-linker=hoisted` 替代容易出错的手写 `.pnpm` 拍平；幂等写入 profile bundle 和 `profiles/node_modules` 链接；保留用户自有同名包。 | 精选插件可离线装载，不依赖用户本机的包管理器布局。 |
+| 插件精简 | 不使用上游聚合包，改为精选子包直挂；主动排除在 rc.6 上不兼容的 `dsh-liangshen`，以及不需要的 pet/remote-web-ui/ssh/liangshen 包；保存 Fork 来源和许可证信息。 | 更小、更稳定、更少无关 UI 的插件面，避免已知启动崩溃。 |
+| 极简灰度工作台 | 自研 `dsh-skin-grayscale`；按 Rec.709 感知亮度处理设计 token，同时覆盖深层背景、编辑器和终端，并保留层级、对比度和可读性。 | 真正一致的极简灰度 DSH，而不是只给页面套一层灰度滤镜。 |
+| 玻璃拟态工作台 | 集成并调整 Aqua 玻璃表面，使其与灰度皮肤和无边框标题栏协同；支持透明面板、模糊/磨砂控制和背景层。 | 类 Codex 的玻璃拟态界面，同时保持灰度信息层级。 |
+| 智能路由 | 集成 `dsh-routing-suite` 为可选择的 `routing-suite` preset；根据首条持久任务判定 `inspect-first`、`direct` 或 `neutral`；只通过 `system-prompt/assemble` 追加受控提示。 | 具备任务感知能力，同时保留 DSH 的 persona、工具、上下文、模型设置和请求次数。 |
+| 路由安全边界 | 明确禁止读写文件、执行进程、裁剪工具、隐藏模型请求、修改 DSH 源码和静默改变模型/Provider；增加路由契约测试。 | 智能路由可检查、可解释，不会悄悄削弱 Harness 能力。 |
+| Skills 宿主契约 | 自研 `dsh-see-skills`，提供 `list_skills` 工具、`GET /see-skills/skills` 路由、结构化记录、安全路径归一化，并发现 `$DSH_HOME/skills`、`.agents`、`.codex`、环境变量和内置目录。 | 用户已有的 Skills 可以被发现，私有 Skill 正文不会复制进公开仓库。 |
+| Skills 客户端体验 | 增加 better-sidebar「技能」tab，和宿主使用同一份清单；补充 `SKILL.md` frontmatter、references/scripts/assets 结构、安全规则和贡献契约。 | Skills 是真正的一等工作台能力，而不是 README 里的宣传语。 |
+| 视觉与工作台集成 | 将 modlens 视觉桥、`describe_image`、better-sidebar、任务看板、Git 图、AionUI 右面板、Web UI 设置和皮肤中心整理为经过验证的精选栈。 | 视觉、文件、编辑器、终端、Git、任务、预览和设置集中在一个 DSH 工作台中。 |
+| 发布工程 | 增加 Windows x64、macOS Intel/Apple Silicon、Linux x64 安装包；提供未签名提示；维护中英文文档、发布检查表、Tag/版本 CI 校验、密钥扫描、runtime/routing/Skills/安装器烟测。 | Release 文件和 README 声明会在发布前对照真实产品检查。 |
+| 下载优化 | `v0.1.2` 排除运行时不需要的 source map 与 PDB 调试符号，保持标准安装包压缩；完整离线运行时仍然保留。 | 下载包更小，但首次启动不会退化成依赖后台下载的半成品空壳。 |
+
+### 上游关系与责任边界
+
+DSH 运行时和第三方项目仍在包元数据、许可证文件和来源说明中保留归属。第三方插件集中放在 `app/plugins/fork/`，适用时通过 `forkedFrom` 标记来源。本项目实际负责 Electron 交付层、插件筛选与挂载、灰度/玻璃整合、智能路由整合、Skills 宿主/客户端契约、Release 流程和产品文档。项目只消费 DSH 官方 Web 公开边界，不修改 DSH 源码。
+
 ## 特性
 
 - 🖥️ **无边框窗口 + 自定义标题栏** —— 没有默认的 File/Edit 菜单栏；拖拽区 + 最小化/最大化/关闭按钮。
@@ -102,6 +126,12 @@ Skills 是工作台的一等能力，不是 README 里的一句宣传语。每�
 > 有意不用官方聚合包 `@linxin666/dsh-web-ui-all`：其内置的 `dsh-liangshen` 会在 DSH rc.6 上原生崩溃，且会拉入我们不需要的 pet/remote-web-ui/ssh。改为精选子包直挂。
 
 ## 选择交付方式
+
+### 下载速度与安装包策略
+
+`v0.1.2` 是第一版瘦身 Release：排除运行时不读取的 source map 和 PDB 调试符号，同时保持标准安装包压缩。DSH 运行时、官方 Web UI、智能路由、极简灰度/玻璃工作台、Skills 查看器和精选插件仍然完整放在安装包中，因此首次启动不依赖后台下载完成，也可以在离线环境启动。
+
+我们暂时不会把稳定版简单拆成“先启动，再慢慢复制插件文件”。DSH 插件通过 profile manifest 和依赖闭包加载，半途复制可能造成运行时能启动但 Web UI 插件失败。未来可以设计在线轻量引导器：将可选插件包以带校验、断点续传、回滚能力的原子包下载到用户数据目录，同时保留完整离线包作为兜底。在协议完成并经过跨平台验证之前，完整压缩包是更可靠的开箱即用路径。
 
 ### 下载 Release（推荐）
 
@@ -175,8 +205,8 @@ pnpm dist
 - 原生模块随包附平台 prebuild；`node-pty` 使用 N-API（ABI 稳定），无需 Electron ABI 重建。
 - 签名暂未启用，待 CI 配置各平台签名凭据后再开启。
 
-推送与 `app/package.json` 版本一致的语义化标签（例如版本为 `0.1.1` 时使用
-`v0.1.1`），跨平台 Release 工作流会自动构建并上传 Windows、macOS Intel/Apple
+推送与 `app/package.json` 版本一致的语义化标签（例如版本为 `0.1.2` 时使用
+`v0.1.2`），跨平台 Release 工作流会自动构建并上传 Windows、macOS Intel/Apple
 Silicon、Linux x64 安装包。不要创建与 `app/package.json` 不一致的标签。
 
 ## 故障排查
