@@ -141,7 +141,7 @@ permission (`chmod +x dsh-desktop-*.AppImage`).
 
 ### Build from source
 
-## Quick start (development)
+#### Quick start (development)
 
 Requirements: Node.js ≥ 22.19, pnpm ≥ 11.
 
@@ -158,7 +158,7 @@ pnpm dev              # build the shell and launch Electron
 3. activate the minimal grayscale + glass workbench surface;
 4. open a frameless window loading the official Web UI, with configured Skills discoverable from the user skill roots.
 
-## Build and verify an installer
+#### Build and verify an installer
 
 For maintainers, run the following from `app/`:
 
