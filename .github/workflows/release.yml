@@ -31,6 +31,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify tag matches app version
+        working-directory: app
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node -e "const fs=require('node:fs'); const version=JSON.parse(fs.readFileSync('package.json','utf8')).version; if (process.env.RELEASE_TAG !== 'v' + version) throw new Error('Tag ' + process.env.RELEASE_TAG + ' does not match app/package.json version ' + version); console.log('version=' + version)"
+
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
