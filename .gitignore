@@ -5,6 +5,7 @@ app/.build/
 app/.runtime/
 app/release/
 app/release-final/
+app/release-v*/
 dist/
 release/
 

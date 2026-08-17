@@ -53,4 +53,11 @@ pnpm pack:dir
 
 ## GitHub Release
 
-推送形如 `v0.1.0` 的版本标签后，GitHub Actions 会在 Windows、macOS、Linux 原生 runner 上分别构建，并自动将安装包上传到 [Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases)。
+推送与 `app/package.json` 版本一致的标签（例如 `v0.1.1`）后，GitHub Actions
+会在 Windows、macOS Intel/Apple Silicon、Linux 原生 runner 上分别构建，并自动将
+安装包上传到 [Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases)。
+发布前请阅读仓库根目录的[安装器发布检查表](../docs/RELEASE-CHECKLIST.md)。
+
+安装包的开箱即用边界：内置 Electron、锁定的 DSH rc.6 运行时和全部精选插件，
+因此不需要 Node.js、pnpm 或 `dsh` CLI；但模型 Provider、模型名、API 凭据和私有
+Skills 必须由用户在自己的 DSH 配置中提供，不能由公开仓库代为携带。

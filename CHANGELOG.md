@@ -2,6 +2,15 @@
 
 本项目的所有重要变更都会记录在此文件中。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [0.1.1] - 2026-08-17
+
+### 变更
+
+- README 明确产品是完整的 DSH Harness 工作台发行版，而不只是 Electron 桌面壳。
+- 补充 Release 下载、源码构建、首次启动、Provider 凭据和 Skills 要求说明。
+- Skills 查看器新增 `~/.codex/skills` 发现路径。
+- 增加跨平台安装器发布检查表，确保每次 Release 与当前功能一致。
+
 ## [0.1.0] - 2026-08-16
 
 ### 新增

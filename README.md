@@ -109,6 +109,38 @@ and must never be committed.
 
 > The official `@linxin666/dsh-web-ui-all` aggregate is intentionally avoided: its bundled `dsh-liangshen` crashes DSH rc.6, and it pulls pet/remote-web-ui/ssh that we don't need. We seat the curated sub-packages directly.
 
+## Choose your delivery path
+
+### Download a Release (recommended)
+
+Open the [GitHub Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases)
+page and download the asset for your operating system. The installer is the
+complete product: Electron, `@deepseek-ai/dsh@0.1.0-rc.6`, the grayscale/glass
+workbench, Smart routing, curated plugins, and the Skills viewer are included.
+Node.js, pnpm, and a separate `dsh` installation are not required.
+
+On first launch the app starts the bundled local DSH web runtime, creates or
+updates the `web` profile, seats the built-in plugins, and may restart the
+runtime once. This is expected. Configure a provider, model, and credentials
+in DSH before sending a task; this repository cannot provide a user's API key.
+The desktop package is self-contained, but model requests still require the
+provider network and valid credentials.
+
+First-run checklist:
+
+1. Install the package for your platform and launch **DSH Desktop**.
+2. Complete DSH provider/model setup, or reuse the existing `~/.dsh` profile.
+3. Keep the default **minimal grayscale** workbench, or choose **Smart routing**
+   (`routing-suite`) from the Agent preset/mode selector.
+4. Open the **Skills** tab to confirm `$DSH_HOME/skills`, `~/.agents/skills`,
+   `~/.codex/skills`, and bundled skills are discoverable.
+
+Public packages are unsigned. Windows SmartScreen and macOS Gatekeeper may
+require explicit confirmation on first launch. Linux AppImage may need execute
+permission (`chmod +x dsh-desktop-*.AppImage`).
+
+### Build from source
+
 ## Quick start (development)
 
 Requirements: Node.js ≥ 22.19, pnpm ≥ 11.
@@ -126,10 +158,24 @@ pnpm dev              # build the shell and launch Electron
 3. activate the minimal grayscale + glass workbench surface;
 4. open a frameless window loading the official Web UI, with configured Skills discoverable from the user skill roots.
 
-## Build the installer
+## Build and verify an installer
 
-For end users, download the latest platform package from the
-[GitHub Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases) page:
+For maintainers, run the following from `app/`:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm verify:runtime
+pnpm build
+pnpm dist
+```
+
+`pnpm dist` is the release build. It first materializes and verifies the
+runtime closure, then invokes electron-builder. A partial runtime fails the
+build instead of becoming a misleading installer. Build on the target OS;
+electron-builder does not turn a Windows build into a valid macOS/Linux package.
+
+The native targets are:
 
 | Platform | Package |
 |---|---|
@@ -137,27 +183,31 @@ For end users, download the latest platform package from the
 | macOS x64 / arm64 | `.dmg` installer or `.zip` archive |
 | Linux x64 | `.AppImage` or `.deb` package |
 
-Each package contains Electron, the locked DSH runtime, and the curated plugins. Node.js, pnpm, and the `dsh` CLI are not required. Public packages are currently unsigned, so Windows SmartScreen or macOS Gatekeeper may require an explicit confirmation on first launch.
-
-For maintainers building locally:
-
-```bash
-cd app
-pnpm dist             # prepare-runtime → verify → build → electron-builder
-```
-
-The current operating system produces its native targets in `app/release/`:
-
-- Windows: NSIS `.exe`
-- macOS: `.dmg` and `.zip`
-- Linux: `.AppImage` and `.deb`
+Every release asset must contain Electron, the locked DSH runtime, the curated
+plugins, the default grayscale/glass workbench, Smart routing, and the Skills
+viewer. See [the release checklist](docs/RELEASE-CHECKLIST.md) before publishing.
 
 Notes:
-- The build verifies the runtime closure before invoking electron-builder, so a partial runtime cannot silently become a release asset.
 - Native modules ship with platform prebuilds; `node-pty` uses N-API (ABI-stable), no Electron ABI rebuild is required.
 - Signing is intentionally disabled until platform-specific signing credentials are configured in CI.
 
-Pushing a semantic-version tag such as `v0.1.1` runs the cross-platform release workflow and uploads all three platform packages to GitHub Releases.
+Pushing a semantic-version tag matching `app/package.json` (for example,
+`v0.1.1` for version `0.1.1`) runs the cross-platform release workflow and
+uploads Windows, macOS Intel/Apple Silicon, and Linux x64 packages to GitHub
+Releases. Do not create a tag whose version differs from `app/package.json`.
+
+## Troubleshooting
+
+- **The window starts but no model response arrives:** configure a provider,
+  model, and credential in DSH; this repository never ships user credentials.
+- **A new plugin or preset is not visible after an upgrade:** quit all DSH
+  Desktop/DSH web processes and launch again. The first launch may perform one
+  automatic runtime restart to load the profile bundles.
+- **Skills are missing:** verify that each skill directory contains `SKILL.md`
+  and that it is under one of the documented roots. Private skill files must
+  remain on the local machine.
+- **A source checkout cannot build:** use Node.js ≥ 22.19 and pnpm ≥ 11, run
+  commands from `app/`, and use `pnpm install --frozen-lockfile` to reproduce CI.
 
 ## Project structure
 

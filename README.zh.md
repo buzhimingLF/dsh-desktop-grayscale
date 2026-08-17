@@ -101,6 +101,34 @@ Skills 是工作台的一等能力，不是 README 里的一句宣传语。每�
 
 > 有意不用官方聚合包 `@linxin666/dsh-web-ui-all`：其内置的 `dsh-liangshen` 会在 DSH rc.6 上原生崩溃，且会拉入我们不需要的 pet/remote-web-ui/ssh。改为精选子包直挂。
 
+## 选择交付方式
+
+### 下载 Release（推荐）
+
+打开 [GitHub Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases)，
+下载对应系统的安装包。安装包就是完整产品：Electron、
+`@deepseek-ai/dsh@0.1.0-rc.6`、极简灰度/玻璃工作台、智能路由、精选插件和
+Skills 查看器都会随包提供；不需要另外安装 Node.js、pnpm 或 `dsh` CLI。
+
+首次启动时，应用会拉起内置的本地 DSH Web 运行时，创建或更新 `web` profile，
+预装内置插件，必要时自动重启运行时一次。这是正常流程。发送任务前仍需在 DSH
+中配置 Provider、模型和凭据，应用不会替用户提供 API Key。桌面包本身自包含，
+但模型请求仍需要 Provider 网络和有效凭据。
+
+首次启动检查清单：
+
+1. 安装对应系统的包并启动 **DSH Desktop**；
+2. 完成 DSH 的 Provider/模型设置，或复用已有的 `~/.dsh` profile；
+3. 保持默认的**极简灰度**工作台，或在 Agent preset/模式选择器中选择**智能路由**
+   （`routing-suite`）；
+4. 打开**技能** tab，确认 `$DSH_HOME/skills`、`~/.agents/skills`、
+   `~/.codex/skills` 和内置技能都能被发现。
+
+公开包暂未签名：Windows SmartScreen、macOS Gatekeeper 首次运行可能需要手动确认。
+Linux AppImage 可能需要执行权限（`chmod +x dsh-desktop-*.AppImage`）。
+
+### 从源码构建
+
 ## 快速开始（开发）
 
 前置：Node.js ≥ 22.19，pnpm ≥ 11。
@@ -118,9 +146,23 @@ pnpm dev              # 构建壳并启动 Electron
 3. 激活极简灰度 + 玻璃工作台表面；
 4. 打开无边框窗口加载官方 Web UI，并从用户技能目录发现已配置 Skills。
 
-## 打包安装器
+## 构建并验证安装器
 
-普通用户请前往 [GitHub Releases](https://github.com/buzhimingLF/dsh-desktop-grayscale/releases) 下载对应系统的安装包：
+维护者在 `app/` 目录执行：
+
+```bash
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm verify:runtime
+pnpm build
+pnpm dist
+```
+
+`pnpm dist` 是正式打包流程：先物化并验证运行时闭包，再调用 electron-builder。
+运行时不完整时会直接失败，不会生成看似成功但无法启动的安装包。请在目标系统
+上打包；electron-builder 不会把 Windows 构建变成有效的 macOS/Linux 包。
+
+原生目标如下：
 
 | 平台 | 安装包 |
 |---|---|
@@ -128,27 +170,21 @@ pnpm dev              # 构建壳并启动 Electron
 | macOS x64 / arm64 | `.dmg` 安装器或 `.zip` 压缩包 |
 | Linux x64 | `.AppImage` 或 `.deb` 安装包 |
 
-每个安装包都内置 Electron、锁定版本的 DSH 运行时和精选插件，不需要另外安装 Node.js、pnpm 或 `dsh` CLI。当前公开包暂未签名，首次运行时 Windows SmartScreen 或 macOS Gatekeeper 可能需要手动确认。
-
-维护者本地打包：
-
-```bash
-cd app
-pnpm dist             # prepare-runtime → verify → build → electron-builder
-```
-
-在对应操作系统上运行会生成原生安装包到 `app/release/`：
-
-- Windows：NSIS `.exe`
-- macOS：`.dmg` 和 `.zip`
-- Linux：`.AppImage` 和 `.deb`
-
 说明：
-- 打包前会验证运行时闭包，缺包时直接失败，不会静默生成不可用 Release。
+- 每个 Release 都必须包含 Electron、锁定版本的 DSH 运行时、精选插件、默认极简灰度/玻璃工作台、智能路由和 Skills 查看器。发布前请执行[安装器发布检查表](docs/RELEASE-CHECKLIST.md)。
 - 原生模块随包附平台 prebuild；`node-pty` 使用 N-API（ABI 稳定），无需 Electron ABI 重建。
 - 签名暂未启用，待 CI 配置各平台签名凭据后再开启。
 
-推送形如 `v0.1.1` 的语义化版本标签后，跨平台 Release 工作流会自动构建并上传 Windows、macOS、Linux 安装包。
+推送与 `app/package.json` 版本一致的语义化标签（例如版本为 `0.1.1` 时使用
+`v0.1.1`），跨平台 Release 工作流会自动构建并上传 Windows、macOS Intel/Apple
+Silicon、Linux x64 安装包。不要创建与 `app/package.json` 不一致的标签。
+
+## 故障排查
+
+- **窗口启动但模型没有响应：** 在 DSH 中配置 Provider、模型和凭据；本仓库绝不携带用户凭据。
+- **升级后看不到新插件或 preset：** 退出所有 DSH Desktop/DSH web 进程后重新启动；首次启动可能自动重启运行时一次以载入 profile bundles。
+- **Skills 缺失：** 确认每个技能目录都有 `SKILL.md`，且位于契约中列出的目录；私有技能正文必须留在本机。
+- **源码无法构建：** 使用 Node.js ≥ 22.19、pnpm ≥ 11，从 `app/` 执行命令；复现 CI 时使用 `pnpm install --frozen-lockfile`。
 
 ## 目录结构
 

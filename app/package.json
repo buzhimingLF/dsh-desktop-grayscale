@@ -1,7 +1,7 @@
 {
   "name": "dsh-desktop",
   "productName": "DSH Desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DSH Harness 工作台发行版——内置极简灰度、玻璃拟态、智能路由、Skills 发现和精选插件的官方 dsh web 运行时",
   "author": {
     "name": "DSH Desktop maintainers",
