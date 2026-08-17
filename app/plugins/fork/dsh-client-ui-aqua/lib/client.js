@@ -1955,15 +1955,15 @@ void main() {
 			} catch {}
 		}
 		const SETTINGS_DEFAULTS = {
-			mode: "mica",
+			mode: "compat",
 			blur: 2,
 			frost: 20,
 			fluidHue: 316,
 			bgBrightness: 50,
-			background: "fluid",
+			background: "solid",
 			wallpaper: "",
-			whale: true,
-			critters: true,
+			whale: false,
+			critters: false,
 			wallpaperBlur: 0,
 			wallpaperFrost: 0
 		};
@@ -2004,9 +2004,12 @@ void main() {
 		/** Read the backdrop source ('fluid' or 'wallpaper'). */
 		function readBackground() {
 			try {
-				return localStorage.getItem(BACKGROUND_KEY) === "wallpaper" ? "wallpaper" : "fluid";
+				const v = localStorage.getItem(BACKGROUND_KEY);
+				if (v === "wallpaper") return "wallpaper";
+				if (v === "solid") return "solid";
+				return SETTINGS_DEFAULTS.background;
 			} catch {
-				return "fluid";
+				return SETTINGS_DEFAULTS.background;
 			}
 		}
 		/** Persist the backdrop source. */
@@ -2356,6 +2359,10 @@ void main() {
 			}
 			/** Attach the fluid shader and the interaction feeds. */
 			mountFluid() {
+				if (this.settings.background !== "fluid") {
+					this.teardownFluid();
+					return;
+				}
 				const mainCanvas = document.querySelector("[data-dsh-aqua-fluid-canvas]");
 				try {
 					if (mainCanvas !== null) this.mainFluid = attachFluidShader(mainCanvas, this.fluidParams());
