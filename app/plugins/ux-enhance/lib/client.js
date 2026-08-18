@@ -114,29 +114,46 @@ window.__ModuleLoader__.load({
 			if (document.getElementById("dsh-cost") !== null) return;
 			const badge = document.createElement("div");
 			badge.id = "dsh-cost";
-			badge.style.cssText = "position:fixed;left:14px;bottom:14px;z-index:2147483000;padding:5px 10px;border-radius:8px;background:rgba(22,22,22,.85);color:#c8c8c8;font-size:11px;font-family:system-ui;pointer-events:none;user-select:none;";
+			badge.style.cssText = "position:fixed;left:14px;bottom:14px;z-index:2147483000;padding:5px 10px;border-radius:8px;background:rgba(22,22,22,.85);color:#c8c8c8;font-size:11px;font-family:system-ui;user-select:none;cursor:pointer;";
+			badge.title = "点击切换费用显示开/关";
 			document.body.appendChild(badge);
+			badge.addEventListener("click", () => {
+				const cur = readCostEnabled();
+				try { localStorage.setItem(COST_KEY, cur ? "off" : "on"); } catch {}
+				tick();
+			});
 			// 定期扫描会话里的 token 用量文本（DSH 状态行会显示 token 数）。
 			function tick() {
-				if (!readCostEnabled()) { badge.textContent = ""; return; }
+				if (!readCostEnabled()) { badge.textContent = "费用：已隐藏（点击开启）"; return; }
 				const tokens = scanTokenUsage();
-				if (tokens === null) { badge.textContent = "费用：—"; return; }
+				if (tokens === null) { badge.textContent = "费用：等待 token 数据…"; return; }
 				const cost = estimateCost(tokens.input, tokens.output, tokens.cacheRead);
-				badge.textContent = "费用 ≈ $" + cost.toFixed(4) + "（in " + tokens.input + " / out " + tokens.output + "）";
+				badge.textContent = "费用 ≈ $" + cost.toFixed(4) + "（入 " + fmt(tokens.input) + " / 出 " + fmt(tokens.output) + "）";
 			}
 			tick();
 			const timer = setInterval(tick, 3000);
 			ctx.effect(() => () => { clearInterval(timer); badge.remove(); }, "ux-enhance cost badge");
 		}
+		function fmt(n) {
+			if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+			if (n >= 1e3) return (n / 1e3).toFixed(1) + "k";
+			return String(n);
+		}
 		function scanTokenUsage() {
-			// 从 DOM 找 "input xxxx / output yyyy" 之类的 token 文本。
+			// 从 DOM 找 token 用量。DSH 状态行有多种呈现，这里做多层回退解析。
 			const body = document.body;
 			if (!body) return null;
 			const text = body.innerText || "";
-			// 常见格式：`1.2k / 3.4k` 或 `input 1234 output 5678`。这里做保守解析。
-			const m = text.match(/(?:输入|in(?:put)?)\s*[:\s]?\s*([\d,\.kKmM]+)[^\d]{0,12}(?:输出|out(?:put)?)\s*[:\s]?\s*([\d,\.kKmM]+)/i);
-			if (!m) return null;
-			return { input: parseNum(m[1]), output: parseNum(m[2]), cacheRead: 0 };
+			// 格式1：`输入 1.2k · 输出 3.4k` / `input 1.2k output 3.4k`
+			let m = text.match(/(?:输入|input|in)\s*[:：]?\s*([\d,\.]+[kKmM]?)[^\d]{0,16}(?:输出|output|out)\s*[:：]?\s*([\d,\.]+[kKmM]?)/i);
+			if (m) return { input: parseNum(m[1]), output: parseNum(m[2]), cacheRead: 0 };
+			// 格式2：`1.2k / 3.4k`（成对出现的 token 数字，中间是斜杠）
+			m = text.match(/([\d,\.]+[kKmM]?)\s*\/\s*([\d,\.]+[kKmM]?)/);
+			if (m) return { input: parseNum(m[1]), output: parseNum(m[2]), cacheRead: 0 };
+			// 格式3：单个数字（视为总 token），比如 `12.3k tokens`
+			m = text.match(/([\d,\.]+[kKmM]?)\s*(?:tokens?|token)/i);
+			if (m) return { input: 0, output: parseNum(m[1]), cacheRead: 0 };
+			return null;
 		}
 		function parseNum(s) {
 			const t = s.replace(/,/g, "").trim().toLowerCase();
