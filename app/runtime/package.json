@@ -16,7 +16,8 @@
     "dsh-skin-grayscale": "workspace:*",
     "dsh-see-skills": "workspace:*",
     "@deepseek-ai/dsh-client-ui-aqua": "workspace:*",
-    "dsh-routing-suite": "workspace:*"
+    "dsh-routing-suite": "workspace:*",
+    "dsh-ux-enhance": "workspace:*"
   },
   "optionalDependencies": {
     "@img/sharp-darwin-arm64": "0.35.3",

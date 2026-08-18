@@ -1,0 +1,4 @@
+# dsh-ux-enhance bundle patch：插入 dshClient 行到 web 插件列表。
+- insert:
+    - id: ux-enhance
+      name: 'dsh-ux-enhance'

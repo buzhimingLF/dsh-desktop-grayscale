@@ -1,0 +1,26 @@
+{
+  "name": "dsh-ux-enhance",
+  "version": "0.1.0",
+  "description": "DSH 体验增强：① Ctrl+滚轮缩放会话字体 ② 输入框 ↑/↓ 切换历史用户消息 ③ 实时费用估算显示",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "license": "MIT"
+}

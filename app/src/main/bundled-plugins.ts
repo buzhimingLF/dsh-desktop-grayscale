@@ -50,6 +50,7 @@ export const BUNDLED_PLUGIN_NAMES = [
   'dsh-see-skills',
   '@deepseek-ai/dsh-client-ui-aqua',
   'dsh-routing-suite',
+  'dsh-ux-enhance',
 ] as const
 
 interface ProfileManifest {
