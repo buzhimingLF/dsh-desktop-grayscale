@@ -6,6 +6,7 @@
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.0-rc.6",
     "@liustack/modlens": "workspace:*",
+    "@liustack/modsearch": "5.4.3",
     "dsh-better-sidebar": "workspace:*",
     "@linxin666/dsh-client-ui-task-board": "workspace:*",
     "@linxin666/dsh-client-ui-git-graph": "workspace:*",

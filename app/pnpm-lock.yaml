@@ -274,6 +274,8 @@ importers:
 
   plugins/see-skills: {}
 
+  plugins/ux-enhance: {}
+
   runtime:
     dependencies:
       '@deepseek-ai/dsh':
@@ -303,6 +305,9 @@ importers:
       '@liustack/modlens':
         specifier: workspace:*
         version: link:../plugins/fork/modlens
+      '@liustack/modsearch':
+        specifier: 5.4.3
+        version: 5.4.3
       dsh-better-sidebar:
         specifier: workspace:*
         version: link:../plugins/fork/dsh-better-sidebar
@@ -315,6 +320,9 @@ importers:
       dsh-skin-grayscale:
         specifier: workspace:*
         version: link:../plugins/dsh-skin-grayscale
+      dsh-ux-enhance:
+        specifier: workspace:*
+        version: link:../plugins/ux-enhance
     optionalDependencies:
       '@img/sharp-darwin-arm64':
         specifier: 0.35.3
@@ -3081,6 +3089,11 @@ packages:
   '@lezer/yaml@1.0.4':
     resolution: {integrity: sha512-2lrrHqxalACEbxIbsjhqGpSW8kWpUKuY6RHgnSAFZa6qK62wvnPxA8hGOwOoDbwHcOFs5M4o27mjGu+P7TvBmw==}
 
+  '@liustack/modsearch@5.4.3':
+    resolution: {integrity: sha512-mSg+QPSjxlgXarp8N2EE1d3P3AzDKlHmcWMS0n0jqjT2W441LJr5MDJme3T8ZR3b8hSbbe3XfGeSJhTHarwEDQ==}
+    engines: {node: '>=22.13'}
+    hasBin: true
+
   '@malept/cross-spawn-promise@2.0.0':
     resolution: {integrity: sha512-1DpKU0Z5ThltBwjNySMC14g0CkbyhCaz9FkhxqNsZI6uAPJXFS8cMXlBKo26FJ8ZuW6S9GCMcR9IO5k2X5/9Fg==}
     engines: {node: '>= 12.13.0'}
@@ -5403,6 +5416,10 @@ packages:
 
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+
+  undici@7.29.0:
+    resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
+    engines: {node: '>=20.18.1'}
 
   undici@8.10.0:
     resolution: {integrity: sha512-HvltHd7avK13QIw/oLe4qoOLyoVSoafqJ2jYOrtMRBkbYT31eiBQ8O0ehRKZiEZCMEyLFQNIADpgCWC5fALvYQ==}
@@ -8989,6 +9006,11 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.10
 
+  '@liustack/modsearch@5.4.3':
+    dependencies:
+      commander: 13.1.0
+      undici: 7.29.0
+
   '@malept/cross-spawn-promise@2.0.0':
     dependencies:
       cross-spawn: 7.0.6
@@ -11822,6 +11844,8 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici-types@7.18.2: {}
+
+  undici@7.29.0: {}
 
   undici@8.10.0: {}
 

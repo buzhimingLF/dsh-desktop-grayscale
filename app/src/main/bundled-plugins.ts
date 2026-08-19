@@ -39,6 +39,7 @@ export const WEB_PROFILE = 'web'
  */
 export const BUNDLED_PLUGIN_NAMES = [
   '@liustack/modlens',
+  '@liustack/modsearch',
   'dsh-better-sidebar',
   '@linxin666/dsh-client-ui-task-board',
   '@linxin666/dsh-client-ui-git-graph',
