@@ -1,0 +1,104 @@
+--- a/dist/api/openai-completions.js
++++ b/dist/api/openai-completions.js
+@@ -145,6 +145,65 @@
+             stream.push({ type: "start", partial: output });
+             let textBlock = null;
+             let thinkingBlock = null;
++            // Gateways like zhilong return reasoning inside content as
++            // <think>...</think> text rather than a reasoning_content field.
++            // Strip it via a state machine and route it to the thinking stream,
++            // so the downstream renders it as a collapsible reasoning block.
++            let thinkInTag = false;
++            let thinkTail = "";
++            const OPEN_THINK = "<think>";
++            const CLOSE_THINK = "</think>";
++            const partialTagLen = (tail, tag) => {
++                for (let len = 1; len < tag.length; len++) {
++                    if (tail.endsWith(tag.slice(0, len)))
++                        return len;
++                }
++                return 0;
++            };
++            const routeContent = (rawContent) => {
++                const text = thinkTail + rawContent;
++                thinkTail = "";
++                let outText = "";
++                let outThink = "";
++                let i = 0;
++                while (i < text.length) {
++                    if (!thinkInTag) {
++                        const openIdx = text.indexOf(OPEN_THINK, i);
++                        if (openIdx === -1) {
++                            const partial = partialTagLen(text.slice(i), OPEN_THINK);
++                            if (partial > 0) {
++                                thinkTail = text.slice(text.length - partial);
++                                outText += text.slice(i, text.length - partial);
++                            }
++                            else {
++                                outText += text.slice(i);
++                            }
++                            break;
++                        }
++                        outText += text.slice(i, openIdx);
++                        i = openIdx + OPEN_THINK.length;
++                        thinkInTag = true;
++                    }
++                    else {
++                        const closeIdx = text.indexOf(CLOSE_THINK, i);
++                        if (closeIdx === -1) {
++                            const partial = partialTagLen(text.slice(i), CLOSE_THINK);
++                            if (partial > 0) {
++                                thinkTail = text.slice(text.length - partial);
++                                outThink += text.slice(i, text.length - partial);
++                            }
++                            else {
++                                outThink += text.slice(i);
++                            }
++                            break;
++                        }
++                        outThink += text.slice(i, closeIdx);
++                        i = closeIdx + CLOSE_THINK.length;
++                        thinkInTag = false;
++                    }
++                }
++                return { text: outText, think: outThink };
++            };
+             let hasFinishReason = false;
+             const toolCallBlocksByIndex = new Map();
+             const toolCallBlocksById = new Map();
+@@ -337,14 +396,27 @@
+                     if (choice.delta.content !== null &&
+                         choice.delta.content !== undefined &&
+                         choice.delta.content.length > 0) {
+-                        const block = ensureTextBlock();
+-                        block.text += choice.delta.content;
+-                        stream.push({
+-                            type: "text_delta",
+-                            contentIndex: getContentIndex(block),
+-                            delta: choice.delta.content,
+-                            partial: output,
+-                        });
++                        const { text: textDelta, think: thinkDelta } = routeContent(choice.delta.content);
++                        if (textDelta.length > 0) {
++                            const block = ensureTextBlock();
++                            block.text += textDelta;
++                            stream.push({
++                                type: "text_delta",
++                                contentIndex: getContentIndex(block),
++                                delta: textDelta,
++                                partial: output,
++                            });
++                        }
++                        if (thinkDelta.length > 0) {
++                            const block = ensureThinkingBlock(undefined);
++                            block.thinking += thinkDelta;
++                            stream.push({
++                                type: "thinking_delta",
++                                contentIndex: getContentIndex(block),
++                                delta: thinkDelta,
++                                partial: output,
++                            });
++                        }
+                     }
+                     // Some endpoints return reasoning in reasoning_content (llama.cpp),
+                     // or reasoning (other openai compatible endpoints)
