@@ -1,0 +1,23 @@
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -609,6 +609,7 @@
+ 		const { turn, step, abort: { signal } } = this.phase;
+ 		signal.throwIfAborted();
+ 		const system = renderPrompt(assembly);
++		let continuationCount = 0;
+ 		while (true) {
+ 			const { request, preparedCall } = await this.buildRequest(turn, step, assembly.tools, system, this.session.deriveMessages(), signal);
+ 			const assembler = new BlockAssembler();
+@@ -656,7 +657,11 @@
+ 				surfaceOp: "append",
+ 				sourceEventSeqs: chunkSeqs
+ 			});
+-			if (finish.kind === "max-tokens") return { kind: "max-tokens" };
++			if (finish.kind === "max-tokens") {
++				continuationCount += 1;
++				if (message.content.length === 0 || continuationCount >= 8) return { kind: "max-tokens" };
++				continue;
++			}
+ 			const toolCalls = message.content.filter((block) => block.type === "tool-call");
+ 			if (toolCalls.length === 0) return { kind: "completed" };
+ 			const { concluded } = await executeToolCalls(this.loopCtx, turn, step, toolCalls, signal, (context) => this.inbox.splice("next-step", this.inbox.nextStep.length, 0, [context]));
