@@ -1,6 +1,6 @@
 --- a/lib/index.js
 +++ b/lib/index.js
-@@ -456,8 +456,23 @@
+@@ -485,8 +485,23 @@
  * @returns the harness chunks, ending with `usage` then `finish`; throws
  *   `LlmError` (`STREAM_CLOSED`) if the source ends without a terminal event.
  */
@@ -24,7 +24,7 @@
  	for await (const event of events) switch (event.type) {
  		case "start": break;
  		case "text_start":
-@@ -468,6 +483,10 @@
+@@ -497,6 +512,10 @@
  			};
  			break;
  		case "text_delta":
