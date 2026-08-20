@@ -216,21 +216,31 @@ async function startRuntime(allowRestart: boolean): Promise<string> {
 
   return new Promise<string>((resolve, reject) => {
     mkdirSync(childHome(), { recursive: true })
+    const env = {
+      ...process.env,
+      DSH_HOME: childHome(),
+    }
     const proc = spawn(dsh.command, [...dsh.args, 'web', '--port', '0'], {
       cwd: resolveWorkspace(),
       env: {
-        ...process.env,
-        DSH_HOME: childHome(),
+        ...env,
         ...(app.isPackaged && dsh.command === process.execPath ? { ELECTRON_RUN_AS_NODE: '1' } : {}),
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     child = proc
 
+    const stdout = proc.stdout
+    const stderr = proc.stderr
+    if (stdout === null || stderr === null) {
+      proc.kill()
+      reject(new Error('dsh web 子进程未提供标准输出'))
+      return
+    }
     let settled = false
     let stdoutBuffer = ''
 
-    proc.stdout.on('data', (chunk: Buffer) => {
+    stdout.on('data', (chunk: Buffer) => {
       stdoutBuffer += chunk.toString()
       const lines = stdoutBuffer.split('\n')
       stdoutBuffer = lines.pop() ?? ''
@@ -269,17 +279,23 @@ async function startRuntime(allowRestart: boolean): Promise<string> {
       }
     })
 
-    proc.stderr.on('data', (chunk: Buffer) => {
+    stderr.on('data', (chunk: Buffer) => {
       process.stderr.write('[dsh web] ' + chunk.toString())
     })
 
     proc.on('error', (error) => {
+      console.error('[desktop] dsh web 子进程错误: ' + String(error))
       if (settled) return
       settled = true
       reject(error)
     })
 
+    proc.on('spawn', () => {
+      console.log('[desktop] dsh web 子进程已启动: ' + String(proc.pid))
+    })
+
     proc.on('exit', (code) => {
+      console.log('[desktop] dsh web 子进程退出: code=' + String(code))
       if (settled) return
       settled = true
       reject(new Error('dsh web 在就绪前退出（code=' + String(code) + '）'))
@@ -290,7 +306,7 @@ async function startRuntime(allowRestart: boolean): Promise<string> {
 function stopChild(): void {
   const proc = child
   child = null
-  if (proc === null || proc.exitCode !== null) return
+  if (proc === null || proc.pid === undefined) return
   if (process.platform === 'win32' && proc.pid !== undefined) {
     spawn('taskkill', ['/pid', String(proc.pid), '/T', '/F'], { stdio: 'ignore' }).on('error', () => proc.kill())
   } else {
@@ -332,7 +348,7 @@ if (!gotLock) {
     ipcMain.on('desktop:window:close', () => mainWindow?.close())
 
     app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0 && child !== null && child.exitCode === null) {
+      if (BrowserWindow.getAllWindows().length === 0 && child !== null && child.pid !== undefined) {
         // macOS 下点 dock 恢复窗口；这里简化处理。
       }
     })

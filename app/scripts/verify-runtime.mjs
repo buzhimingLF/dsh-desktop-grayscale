@@ -14,12 +14,10 @@ const requiredPackages = [
   '@linxin666/dsh-client-ui-task-board',
   '@linxin666/dsh-client-ui-git-graph',
   '@linxin666/dsh-client-ui-aionui-panel',
-  '@linxin666/dsh-client-ui-web-ui-settings',
   '@linxin666/dsh-tool-describe-image',
   '@linxin666/dsh-client-ui-skin-center',
   'dsh-skin-grayscale',
   'dsh-see-skills',
-  '@deepseek-ai/dsh-client-ui-aqua',
   'dsh-routing-suite',
 ]
 

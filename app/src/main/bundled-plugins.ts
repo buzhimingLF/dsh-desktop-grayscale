@@ -183,31 +183,58 @@ function flattenClosure(nmRoot: string, dshHome: string): number {
  * 并禁用 LLM 标题生成（session-title-llm / first-prompt-llm），避免标题变成 AI 第一条回复的摘要。
  *
  * 通过 profile 的 cordis.patch.yml 实现 —— DSH 的用户 patch 层在所有 bundle 层之后应用，
- * 按 row id 覆盖（last write wins）。幂等：检测到已写入 `session-title-llm` 行即跳过，
- * 不覆盖用户后续手改的内容。
+ * 按 row id 覆盖（last write wins）。幂等：已存在合法条目时跳过；若检测到今天旧版本
+ * 写入的非法流式数组，只迁移本函数生成的条目，不覆盖用户后续手改的内容。
  */
 function applySessionTitlePolicy(dshHome: string): boolean {
   const patchPath = join(profileDir(dshHome), 'cordis.patch.yml')
   try {
     const raw = readFileSync(patchPath, 'utf8')
-    if (raw.includes('id: session-title-llm')) return false
     const entries = [
-      '  # dsh-desktop：会话标题优先取用户第一条消息（fallback），禁用 LLM 自动命名。',
-      '  - id: session-title-llm',
-      '    disabled: true',
+      '# dsh-desktop：会话标题优先取用户第一条消息（fallback），禁用 LLM 自动命名。',
+      '- id: session-title-llm',
+      '  disabled: true',
       '',
-      '  - id: session-title',
-      '    config:',
-      '      fallbackMaxWords: 6',
-      '      fallbackMaxBytes: 60',
-      '      maxTitleBytes: 80',
+      '- id: session-title',
+      '  config:',
+      '    fallbackMaxWords: 6',
+      '    fallbackMaxBytes: 60',
+      '    maxTitleBytes: 80',
     ].join('\n')
     const trimmed = raw.replace(/\s+$/, '')
     let next: string
-    if (trimmed.endsWith('[]')) {
-      next = trimmed.slice(0, -2) + '[\n' + entries + '\n]\n'
+    // DSH 初次生成的 profile patch 是带注释的空流式数组（`[ ... ]`）。
+    // 追加块式列表项到流式数组内部会生成非法 YAML，因此将空数组转换成
+    // 与 bundle patch 一致的顶层块式数组；非空用户 patch 保持不动。
+    const withoutComments = raw
+      .split(/\r?\n/)
+      .filter((line) => !/^\s*#/.test(line))
+      .join('\n')
+      .trim()
+    const isLegacyInvalidFlowPatch =
+      withoutComments.startsWith('[') &&
+      withoutComments.endsWith(']') &&
+      /\r?\n  - id: session-title-llm/.test(raw)
+    if (isLegacyInvalidFlowPatch) {
+      // 兼容今天旧版本已经写入磁盘的非法格式：只迁移本函数生成的
+      // `- id: session-title-llm` 流式数组，保留其它用户 patch 不动。
+      const open = raw.indexOf('[')
+      const close = raw.lastIndexOf(']')
+      const body = raw.slice(open + 1, close).replace(/^  /gm, '')
+      next = raw.slice(0, open) + body + raw.slice(close + 1).replace(/^\s*/, '')
+      if (!next.endsWith('\n')) next += '\n'
+    } else if (withoutComments === '[]') {
+      const open = raw.indexOf('[')
+      const close = raw.lastIndexOf(']')
+      next = raw.slice(0, open) + entries + '\n' + raw.slice(close + 1).replace(/^\s*/, '')
+      if (!next.endsWith('\n')) next += '\n'
+    } else if (withoutComments.startsWith('[') && withoutComments.endsWith(']')) {
+      // 内容结构异常或已有用户 patch 时不强行改写，避免破坏用户手写内容。
+      return false
     } else if (trimmed.endsWith(']')) {
-      next = trimmed.slice(0, -1) + entries + '\n]\n'
+      return false
+    } else if (raw.includes('id: session-title-llm')) {
+      return false
     } else {
       // 内容结构异常时不强行改写，避免破坏用户手写的 patch。
       return false
