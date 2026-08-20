@@ -11,12 +11,10 @@
     "@linxin666/dsh-client-ui-task-board": "workspace:*",
     "@linxin666/dsh-client-ui-git-graph": "workspace:*",
     "@linxin666/dsh-client-ui-aionui-panel": "workspace:*",
-    "@linxin666/dsh-client-ui-web-ui-settings": "workspace:*",
     "@linxin666/dsh-tool-describe-image": "workspace:*",
     "@linxin666/dsh-client-ui-skin-center": "workspace:*",
     "dsh-skin-grayscale": "workspace:*",
     "dsh-see-skills": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-aqua": "workspace:*",
     "dsh-routing-suite": "workspace:*",
     "dsh-ux-enhance": "workspace:*"
   },

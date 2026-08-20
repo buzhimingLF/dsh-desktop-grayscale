@@ -5,12 +5,15 @@ window.__ModuleLoader__.load({
 		var exports = module.exports;
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 
-		// 模型价格（每百万 token，美元）。与 pi-ai catalog 一致；未知模型走默认档。
-		const PRICES = {
-			"deepseek-v4-pro": { input: 0.435, output: 0.87, cacheRead: 0.003625 },
-			"deepseek-v4-flash": { input: 0.14, output: 0.28, cacheRead: 0.0028 },
+		// 模型价格（每百万 token，人民币）。与 deepseek 官方美元价按约 7.2 汇率换算；
+		// 用户可在 localStorage 的 dsh.ux-enhance.prices 里用 JSON 覆盖任意模型价格，
+		// 例如 {"deepseek-v4-pro":{"input":3.13,"output":6.26,"cacheRead":0.026},"default":{...}}。
+		const CURRENCY = "¥";
+		const DEFAULT_PRICES = {
+			"deepseek-v4-pro": { input: 3.13, output: 6.26, cacheRead: 0.026 },
+			"deepseek-v4-flash": { input: 1.01, output: 2.02, cacheRead: 0.02 },
 		};
-		const DEFAULT_PRICE = { input: 0.435, output: 0.87, cacheRead: 0.003625 };
+		const DEFAULT_PRICE = { input: 3.13, output: 6.26, cacheRead: 0.026 };
 
 		// ---------- 工具 ----------
 		function cssEscape(s) { return String(s); }
@@ -103,18 +106,32 @@ window.__ModuleLoader__.load({
 			return (inputTokens * price.input + outputTokens * price.output + cacheReadTokens * price.cacheRead) / 1e6;
 		}
 		function pickPrice() {
-			// 从模型选择器/状态行读当前模型名，匹配价格表。
+			// 从模型选择器/状态行读当前模型名，匹配价格表；支持 localStorage 覆盖。
+			const overrides = readPriceOverrides();
 			const hay = document.body.innerText || "";
-			for (const name of Object.keys(PRICES)) {
-				if (hay.includes(name)) return PRICES[name];
+			for (const name of Object.keys(DEFAULT_PRICES)) {
+				if (hay.includes(name)) {
+					const base = DEFAULT_PRICES[name];
+					const override = overrides ? overrides[name] : null;
+					return override && typeof override === "object" ? { ...base, ...override } : base;
+				}
 			}
-			return DEFAULT_PRICE;
+			const override = overrides ? overrides["default"] : null;
+			return override && typeof override === "object" ? { ...DEFAULT_PRICE, ...override } : DEFAULT_PRICE;
+		}
+		function readPriceOverrides() {
+			try {
+				const raw = localStorage.getItem("dsh.ux-enhance.prices");
+				if (!raw) return null;
+				const parsed = JSON.parse(raw);
+				return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+			} catch { return null; }
 		}
 		function injectCostBadge(ctx) {
 			if (document.getElementById("dsh-cost") !== null) return;
 			const badge = document.createElement("div");
 			badge.id = "dsh-cost";
-			badge.style.cssText = "position:fixed;left:14px;bottom:14px;z-index:2147483000;padding:5px 10px;border-radius:8px;background:rgba(22,22,22,.85);color:#c8c8c8;font-size:11px;font-family:system-ui;user-select:none;cursor:pointer;";
+			badge.style.cssText = "position:fixed;right:14px;bottom:14px;z-index:2147483000;padding:5px 10px;border-radius:8px;background:rgba(22,22,22,.85);color:#c8c8c8;font-size:11px;font-family:system-ui;user-select:none;cursor:pointer;pointer-events:auto;";
 			badge.title = "点击切换费用显示开/关";
 			document.body.appendChild(badge);
 			badge.addEventListener("click", () => {
@@ -128,7 +145,7 @@ window.__ModuleLoader__.load({
 				const tokens = scanTokenUsage();
 				if (tokens === null) { badge.textContent = "费用：等待 token 数据…"; return; }
 				const cost = estimateCost(tokens.input, tokens.output, tokens.cacheRead);
-				badge.textContent = "费用 ≈ $" + cost.toFixed(4) + "（入 " + fmt(tokens.input) + " / 出 " + fmt(tokens.output) + "）";
+				badge.textContent = "费用 ≈ " + CURRENCY + cost.toFixed(4) + "（入 " + fmt(tokens.input) + " / 出 " + fmt(tokens.output) + "）";
 			}
 			tick();
 			const timer = setInterval(tick, 3000);

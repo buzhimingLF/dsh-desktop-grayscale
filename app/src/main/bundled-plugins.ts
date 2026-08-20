@@ -44,12 +44,10 @@ export const BUNDLED_PLUGIN_NAMES = [
   '@linxin666/dsh-client-ui-task-board',
   '@linxin666/dsh-client-ui-git-graph',
   '@linxin666/dsh-client-ui-aionui-panel',
-  '@linxin666/dsh-client-ui-web-ui-settings',
   '@linxin666/dsh-tool-describe-image',
   '@linxin666/dsh-client-ui-skin-center',
   'dsh-skin-grayscale',
   'dsh-see-skills',
-  '@deepseek-ai/dsh-client-ui-aqua',
   'dsh-routing-suite',
   'dsh-ux-enhance',
 ] as const
@@ -181,6 +179,59 @@ function flattenClosure(nmRoot: string, dshHome: string): number {
 }
 
 /**
+ * 会话命名策略：标题优先提取用户第一条消息的关键内容（deterministic fallback），
+ * 并禁用 LLM 标题生成（session-title-llm / first-prompt-llm），避免标题变成 AI 第一条回复的摘要。
+ *
+ * 通过 profile 的 cordis.patch.yml 实现 —— DSH 的用户 patch 层在所有 bundle 层之后应用，
+ * 按 row id 覆盖（last write wins）。幂等：检测到已写入 `session-title-llm` 行即跳过，
+ * 不覆盖用户后续手改的内容。
+ */
+function applySessionTitlePolicy(dshHome: string): boolean {
+  const patchPath = join(profileDir(dshHome), 'cordis.patch.yml')
+  try {
+    const raw = readFileSync(patchPath, 'utf8')
+    if (raw.includes('id: session-title-llm')) return false
+    const entries = [
+      '  # dsh-desktop：会话标题优先取用户第一条消息（fallback），禁用 LLM 自动命名。',
+      '  - id: session-title-llm',
+      '    disabled: true',
+      '',
+      '  - id: session-title',
+      '    config:',
+      '      fallbackMaxWords: 6',
+      '      fallbackMaxBytes: 60',
+      '      maxTitleBytes: 80',
+    ].join('\n')
+    const trimmed = raw.replace(/\s+$/, '')
+    let next: string
+    if (trimmed.endsWith('[]')) {
+      next = trimmed.slice(0, -2) + '[\n' + entries + '\n]\n'
+    } else if (trimmed.endsWith(']')) {
+      next = trimmed.slice(0, -1) + entries + '\n]\n'
+    } else {
+      // 内容结构异常时不强行改写，避免破坏用户手写的 patch。
+      return false
+    }
+    const tmp = patchPath + '.' + String(process.pid) + '.tmp'
+    writeFileSync(tmp, next)
+    try {
+      renameSync(tmp, patchPath)
+    } catch {
+      try {
+        rmSync(patchPath, { force: true })
+        renameSync(tmp, patchPath)
+      } catch (error) {
+        rmSync(tmp, { force: true })
+        throw error
+      }
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
  * 把闭包里的插件全部 seat 进 web profile。
  * @param pluginDirs 包名 → 插件目录（闭包内路径）
  * @param nmRoot     闭包 node_modules 根（dev 为 workspace 根，packaged 为 resourcesPath/dsh-runtime/node_modules）
@@ -232,6 +283,12 @@ export function seatBundledPlugins(pluginDirs: Map<string, string>, nmRoot: stri
       result.missing.push(name)
       console.error(`[desktop] 预装插件 ${name} 失败: ${error instanceof Error ? error.message : String(error)}`)
     }
+  }
+  // 会话标题策略：禁用 LLM 自动命名，标题回落到用户第一条消息（幂等）。
+  try {
+    if (applySessionTitlePolicy(dshHome)) console.log('[desktop] 会话标题策略已写入 profile cordis.patch.yml')
+  } catch (error) {
+    console.error(`[desktop] 会话标题策略写入失败: ${error instanceof Error ? error.message : String(error)}`)
   }
   return result
 }

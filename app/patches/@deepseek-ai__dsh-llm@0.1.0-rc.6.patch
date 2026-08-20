@@ -1,0 +1,16 @@
+--- a/lib/types/assembler.js
++++ b/lib/types/assembler.js
+@@ -134,7 +134,12 @@
+     }
+     /** Adapter-private replay state from the terminal finish chunk, if any. */
+     get replayState() {
+-        return this._replayState;
++        const state = this._replayState;
++        if (state === undefined || this.finish.kind !== 'max-tokens' || !Array.isArray(state.blocks)) return state;
++        // max-tokens truncation drops tool-call blocks (blocks() filters them);
++        // trim replayState.blocks to match assembled content, otherwise the next
++        // replay round fails with INVALID_REPLAY_STATE (block count mismatch).
++        return { ...state, blocks: state.blocks.filter((block) => block?.type !== 'tool-call') };
+     }
+     /**
+      * The assembled assistant message.
