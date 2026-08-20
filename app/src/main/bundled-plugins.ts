@@ -52,6 +52,12 @@ export const BUNDLED_PLUGIN_NAMES = [
   'dsh-ux-enhance',
 ] as const
 
+/** 今天旧版本曾写入 profile、但当前运行时已不再随包提供的插件。 */
+const RETIRED_BUNDLED_PLUGIN_NAMES = [
+  '@linxin666/dsh-client-ui-web-ui-settings',
+  '@deepseek-ai/dsh-client-ui-aqua',
+] as const
+
 interface ProfileManifest {
   dependencies?: Record<string, string>
   dsh?: { profile?: { bundles?: string[] } }
@@ -113,6 +119,27 @@ function writeManifest(dshHome: string, manifest: ProfileManifest): void {
 /** 用户自己装过同名包时，不要覆盖（用户拥有优先权）。 */
 function userOwned(manifest: ProfileManifest, name: string): boolean {
   return Object.hasOwn(manifest.dependencies ?? {}, name)
+}
+
+/** 启动前移除桌面版历史遗留的 bundle 引用，避免 DSH 在加载 profile 时直接退出。 */
+function removeRetiredBundledPlugins(dshHome: string): string[] {
+  const manifest = readManifest(dshHome)
+  if (manifest === undefined) return []
+  const bundles = manifest.dsh?.profile?.bundles
+  if (!Array.isArray(bundles)) return []
+  const retired = bundles.filter(
+    (name): name is (typeof RETIRED_BUNDLED_PLUGIN_NAMES)[number] =>
+      (RETIRED_BUNDLED_PLUGIN_NAMES as readonly string[]).includes(name) && !userOwned(manifest, name),
+  )
+  if (retired.length === 0 || manifest.dsh?.profile === undefined) return []
+  manifest.dsh.profile.bundles = bundles.filter((name) => !retired.includes(name as (typeof RETIRED_BUNDLED_PLUGIN_NAMES)[number]))
+  try {
+    writeManifest(dshHome, manifest)
+    return retired
+  } catch (error) {
+    console.error(`[desktop] 清理历史插件引用失败: ${error instanceof Error ? error.message : String(error)}`)
+    return []
+  }
 }
 
 /** 幂等建立符号链接（Windows 用 junction）。已指向同目标的链接直接跳过。 */
@@ -267,6 +294,8 @@ function applySessionTitlePolicy(dshHome: string): boolean {
 export function seatBundledPlugins(pluginDirs: Map<string, string>, nmRoot: string, dshHome: string): SeatResult {
   const result: SeatResult = { seated: [], added: [], missing: [], flattened: 0, presetsAdded: [] }
   result.presetsAdded = materializeBundledPresets(pluginDirs, dshHome)
+  const retired = removeRetiredBundledPlugins(dshHome)
+  if (retired.length > 0) console.log('[desktop] 清理 profile 中已废弃插件引用: ' + retired.join(', '))
   const manifest = readManifest(dshHome)
   // 首次运行还没有 profile：等 boot 生成后，下一轮再 seat。
   if (manifest === undefined) {
