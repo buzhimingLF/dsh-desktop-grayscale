@@ -47,6 +47,41 @@ window.__ModuleLoader__.load({
 			return out;
 		}
 
+		// ---------- 0. 输入框文字自适应对比度 ----------
+		// 历史消息通过 ↑/↓ 回填进 textarea 后，文字颜色在部分主题下与背景对比不足。
+		// 这里按「主题标记 → 系统偏好 → 背景亮度」三级判定深浅色，注入高对比文字色，
+		// 保证深色/浅色主题下历史回填内容都清晰可读（不影响 placeholder）。
+		const CONTRAST_STYLE_ID = "dsh-ux-enhance-composer-contrast";
+		function luminanceOf(bg) {
+			const m = String(bg).match(/[\d.]+/g);
+			if (!m || m.length < 3) return 0.5;
+			const r = Number(m[0]), g = Number(m[1]), b = Number(m[2]);
+			return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+		}
+		function resolveDarkTheme() {
+			const root = document.documentElement;
+			const theme = root.getAttribute("data-theme") || root.getAttribute("data-dsh-theme") || String(root.className || "");
+			if (/\bdark\b/i.test(theme)) return true;
+			if (/\blight\b/i.test(theme)) return false;
+			try {
+				if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) return true;
+				if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) return false;
+			} catch {}
+			// 背景亮度兜底：深背景 → 深色主题。
+			return luminanceOf(getComputedStyle(document.body).backgroundColor) < 0.5;
+		}
+		function applyComposerContrast() {
+			let el = document.getElementById(CONTRAST_STYLE_ID);
+			if (!el) {
+				el = document.createElement("style");
+				el.id = CONTRAST_STYLE_ID;
+				document.head.appendChild(el);
+			}
+			const dark = resolveDarkTheme();
+			const color = dark ? "#e8e8e8" : "#1a1a1a";
+			el.textContent = `textarea{color:${color}!important;caret-color:${color}!important}`;
+		}
+
 		// ---------- 1. Ctrl+滚轮 字体缩放 ----------
 		const ZOOM_KEY = "dsh.ux-enhance.zoom";
 		function readZoom() {
@@ -183,6 +218,13 @@ window.__ModuleLoader__.load({
 		// ---------- apply ----------
 		function apply(ctx) {
 			if (typeof document === "undefined" || document.body === null) return;
+			// 输入框文字对比度：初始应用 + 监听主题标记变化。
+			applyComposerContrast();
+			let themeObserver = null;
+			try {
+				themeObserver = new MutationObserver(() => applyComposerContrast());
+				themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-dsh-theme", "class"] });
+			} catch {}
 			// 字体缩放：初始应用一次。
 			applyZoom(readZoom());
 			window.addEventListener("wheel", onWheel, { passive: false });
@@ -201,6 +243,7 @@ window.__ModuleLoader__.load({
 			ctx.effect(() => () => {
 				window.removeEventListener("wheel", onWheel);
 				document.removeEventListener("keydown", onKeyDown);
+				if (themeObserver) themeObserver.disconnect();
 			}, "ux-enhance");
 		}
 
