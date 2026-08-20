@@ -72,8 +72,7 @@ does not modify DSH source code.
 - **Bundled DSH runtime** — spawns `dsh web --port 0` on Electron's Node, loads the official Web UI; shares `~/.dsh` sessions & credentials with the CLI.
 - **Offline plugin pre-seating** — the plugin closure is materialized via `pnpm deploy --node-linker=hoisted` and seated into `dsh.profile.bundles` + `profiles/node_modules` symlinks on first launch.
 - **Minimal grayscale skin** (`dsh-skin-grayscale`) — every DSH design token desaturated by perceptual luminance; editor & terminal deep-grayscaled.
-- **Grayscale-first workbench** — the default bundled surface activates the grayscale skin over both token-driven UI and skin-provided background layers while retaining translucent glass depth.
-- **Glassmorphism theme** (`dsh-client-ui-aqua`, forked from DSH-Transparent-UI-Plugin) — frosted glass panes, adjustable blur/frost/backdrop.
+- **Grayscale-first workbench** — the default bundled surface activates the grayscale skin over both token-driven UI and skin-provided background layers.
 - **Skills viewer** (`dsh-see-skills`) — `list_skills` tool + `/see-skills/skills` route + a sidebar "Skills" tab, structured output following modlens' evidence contract.
 - **Configured Skills compatibility** — discovers DSH, `.agents`, `.codex`, environment-provided, and bundled skill roots; private skill files stay on the user's machine and are not copied into the public repository.
 - **Task-aware routing** (`dsh-routing-suite`) — a selectable Smart routing mode that chooses inspect-first or direct execution from the first durable user task, without extra model calls or tool restrictions.
@@ -127,13 +126,13 @@ and must never be committed.
 | `@linxin666/dsh-client-ui-task-board` | task board | forked |
 | `@linxin666/dsh-client-ui-git-graph` | git graph | forked |
 | `@linxin666/dsh-client-ui-aionui-panel` | right panel (preview / file tree / SCM) | forked |
-| `@linxin666/dsh-client-ui-web-ui-settings` | web UI settings | forked |
 | `@linxin666/dsh-tool-describe-image` | `describe_image` vision tool | forked |
 | `@linxin666/dsh-client-ui-skin-center` | skin center | forked |
-| `@deepseek-ai/dsh-client-ui-aqua` | glassmorphism theme | forked |
-| `dsh-skin-grayscale` | minimal grayscale skin | **built in this repo** |
+| `dsh-skin-grayscale` | minimal grayscale skin + default `minimal-gray` agent preset | **built in this repo** |
 | `dsh-see-skills` | skills viewer | **built in this repo** |
 | `dsh-routing-suite` | Smart routing mode: inspect-first / direct execution / automatic classification | forked from [dragonbaba/dsh-routing-suite](https://github.com/dragonbaba/dsh-routing-suite) |
+| `dsh-ux-enhance` | UX enhancements: font zoom / ↑↓ history / cost badge (CNY, customizable) | **built in this repo** |
+| `@liustack/modsearch` | web search provider (backing `web_search` / `web_fetch`) | forked |
 
 > The official `@linxin666/dsh-web-ui-all` aggregate is intentionally avoided: its bundled `dsh-liangshen` crashes DSH rc.6, and it pulls pet/remote-web-ui/ssh that we don't need. We seat the curated sub-packages directly.
 

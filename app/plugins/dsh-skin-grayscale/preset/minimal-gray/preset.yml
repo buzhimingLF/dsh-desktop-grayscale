@@ -1,0 +1,3 @@
+name: 极简灰度版
+description: 以极简模式为底，搬入标准模式的常用工具：Windows 自适应 Shell（bash/pwsh）、文件读写与检索、后台任务、网页搜索、待办与提问；不含计划模式、上下文压缩、子代理、工作流与 Skills。
+order: 1

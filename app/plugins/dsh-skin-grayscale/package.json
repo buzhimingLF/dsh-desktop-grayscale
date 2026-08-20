@@ -16,12 +16,21 @@
     "client": {
       "inject": [],
       "platform": "web"
+    },
+    "desktop": {
+      "presets": [
+        {
+          "id": "minimal-gray",
+          "path": "./preset/minimal-gray"
+        }
+      ]
     }
   },
   "files": [
     "lib",
     "cordis.patch.yml",
-    "skin.json"
+    "skin.json",
+    "preset"
   ],
   "license": "MIT"
 }

@@ -61,8 +61,7 @@ DSH 运行时和第三方项目仍在包元数据、许可证文件和来源说�
 - **内置 DSH 运行时** —— 用 Electron 的 Node 拉起 `dsh web --port 0`，加载官方 Web UI；与 CLI 共享 `~/.dsh` 的会话与凭据。
 - **插件离线预装** —— 通过 `pnpm deploy --node-linker=hoisted` 物化插件闭包，首次启动时 seat 进 `dsh.profile.bundles` + `profiles/node_modules` 符号链接。
 - **极简灰度皮肤**（`dsh-skin-grayscale`）—— 按感知亮度对全部 DSH 设计 token 去色，编辑器/终端深度灰度。
-- **灰度优先工作台** —— 默认表面同时覆盖 token 驱动的 UI 和皮肤提供的背景层，保留玻璃透明层次。
-- **玻璃拟态主题**（`dsh-client-ui-aqua`，fork 自 DSH-Transparent-UI-Plugin）—— 磨砂玻璃面板，可调模糊度/磨砂度/背景。
+- **灰度优先工作台** —— 默认表面同时覆盖 token 驱动的 UI 和皮肤提供的背景层。
 - **技能查看插件**（`dsh-see-skills`）—— `list_skills` 工具 + `/see-skills/skills` 路由 + 侧边栏「技能」tab，结构化输出沿用 modlens 的证据契约。
 - **用户 Skills 兼容** —— 自动发现 DSH、`.agents`、`.codex`、环境变量指定以及内置的技能目录；私有技能正文留在用户机器，不复制进公开仓库。
 - **任务感知路由**（`dsh-routing-suite`）——可选的「智能路由模式」，根据首条真实任务自动选择“检查优先”或“直接执行”，不增加模型请求，也不裁剪工具。
@@ -110,13 +109,13 @@ Skills 是工作台的一等能力，不是 README 里的一句宣传语。每�
 | `@linxin666/dsh-client-ui-task-board` | 任务看板 | fork |
 | `@linxin666/dsh-client-ui-git-graph` | Git 图 | fork |
 | `@linxin666/dsh-client-ui-aionui-panel` | 右侧面板（预览 / 文件树 / SCM） | fork |
-| `@linxin666/dsh-client-ui-web-ui-settings` | Web UI 设置 | fork |
 | `@linxin666/dsh-tool-describe-image` | `describe_image` 看图工具 | fork |
 | `@linxin666/dsh-client-ui-skin-center` | 皮肤中心 | fork |
-| `@deepseek-ai/dsh-client-ui-aqua` | 玻璃拟态主题 | fork |
-| `dsh-skin-grayscale` | 极简灰度皮肤 | **本仓库自研** |
+| `dsh-skin-grayscale` | 极简灰度皮肤 + `minimal-gray` 默认 Agent preset | **本仓库自研** |
 | `dsh-see-skills` | 技能查看 | **本仓库自研** |
 | `dsh-routing-suite` | 智能路由模式：检查优先 / 直接执行 / 自动判断 | fork 自 [dragonbaba/dsh-routing-suite](https://github.com/dragonbaba/dsh-routing-suite) |
+| `dsh-ux-enhance` | 体验增强：字体缩放 / ↑↓ 历史消息 / 费用估算（人民币、可自定义） | **本仓库自研** |
+| `@liustack/modsearch` | 联网搜索 provider（`web_search` / `web_fetch` 底层） | fork |
 
 > 有意不用官方聚合包 `@linxin666/dsh-web-ui-all`：其内置的 `dsh-liangshen` 会在 DSH rc.6 上原生崩溃，且会拉入我们不需要的 pet/remote-web-ui/ssh。改为精选子包直挂。
 

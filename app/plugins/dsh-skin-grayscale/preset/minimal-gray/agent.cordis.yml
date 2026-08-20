@@ -1,0 +1,83 @@
+# The `minimal-gray` agent preset: 极简灰度版.
+#
+# 以 `minimal`（极简模式）为底：固定的完整 persona（complete: true）、抑制运行时上下文，
+# 不含计划模式、上下文压缩、子代理、工作流与目标；但**保留 Skills**（用户需要 `/` 技能菜单）。
+# 与 `minimal` 只有两处不同：
+#
+#   1. Shell 换成 `standard` 的平台自适应方案 —— Unix 启用 bash、Windows 启用 pwsh，
+#      以对抗 "Windows 不适配 Bash"（minimal 的持久 bash 在 Windows 上不可用）。
+#   2. 搬入 `standard` 的常用工具：文件读写/检索、后台任务、网页搜索、待办与提问。
+#
+# 本文件是 AGENT-PLANE 组合。以下各行要么注册进宿主 `tools` 注册表、要么只消费宿主服务，
+# 都不发布服务，因此无需 isolate realm（这与 `standard` 中同名行的判断一致）。
+
+# ── identity ────────────────────────────────────────────────────────────────
+
+- id: persona
+  name: '@deepseek-ai/dsh-persona'
+  config:
+    text: >-
+      You are a coding agent powered by the {{model}} model. Your working directory is {{cwd}}. Use the provided tools to inspect, edit, and search files, look up information on the web, and run shell commands. Prefer targeted edits over full rewrites, and keep changes minimal.
+    complete: true
+    includeRuntimeContext: false
+
+# ── shell ───────────────────────────────────────────────────────────────────
+
+# 平台自适应：与 `standard` 相同的两行。Unix 上 bash 启用 / pwsh 禁用，
+# Windows 上相反，因此同一份 preset 在两种平台上都能拿到可用的 Shell。
+- id: tool-bash
+  name: '@deepseek-ai/dsh-tool-bash'
+  disabled: !!js process.platform === 'win32'
+
+- id: tool-pwsh
+  name: '@deepseek-ai/dsh-tool-pwsh'
+  disabled: !!js process.platform !== 'win32'
+
+# ── filesystem ──────────────────────────────────────────────────────────────
+
+# 两行都注册进宿主 `tools` 注册表、不提供服务，故无需 realm。
+# `fs` 服务及其策略留在宿主。
+- id: tool-fs
+  name: '@deepseek-ai/dsh-tool-fs'
+
+- id: tool-fs-search
+  name: '@deepseek-ai/dsh-tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+# ── background jobs ────────────────────────────────────────────────────────
+
+- id: tool-jobs
+  name: '@deepseek-ai/dsh-tool-jobs'
+
+# ── remaining model-facing rows ─────────────────────────────────────────────
+
+# 联网搜索 + 正文抓取：基于 Function Calling 的 web_search / web_fetch。
+# searchMaxResults 限制单次返回 5 条结果（控制 Token）；fetch 启用正文抓取，
+# fetchMaxOutputChars 限制正文输出长度。
+- id: tool-web
+  name: '@deepseek-ai/dsh-tool-web'
+  config:
+    fetch: true
+    searchMaxResults: 5
+    searchTimeoutMs: 60000
+    fetchTimeoutMs: 30000
+    fetchMaxOutputChars: 100000
+
+- id: tool-todo
+  name: '@deepseek-ai/dsh-tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: tool-ask-user
+  name: '@deepseek-ai/dsh-tool-ask-user'
+
+# ── skills ──────────────────────────────────────────────────────────────────
+
+# 与 `standard` 相同的两行：`skill-filesystem` 贡献本地技能根目录发现，
+# `tool-skill` 让 agent 拿到技能目录与加载器；合并目录也含宿主层的仓库插件技能。
+- id: skill-filesystem
+  name: '@deepseek-ai/dsh-skill-filesystem'
+
+- id: tool-skill
+  name: '@deepseek-ai/dsh-tool-skill'
