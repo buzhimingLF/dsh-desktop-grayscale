@@ -94,4 +94,5 @@ allowBuilds:
 patchedDependencies:
   '@deepseek-ai/dsh-host-directory-picker-native@0.1.0-rc.6': patches/@deepseek-ai__dsh-host-directory-picker-native@0.1.0-rc.6.patch
   '@deepseek-ai/dsh-llm@0.1.0-rc.6': patches/@deepseek-ai__dsh-llm@0.1.0-rc.6.patch
+  '@deepseek-ai/dsh-llm-pi-ai@0.1.0-rc.6': patches/@deepseek-ai__dsh-llm-pi-ai@0.1.0-rc.6.patch
   '@earendil-works/pi-ai@0.82.1': patches/@earendil-works__pi-ai@0.82.1.patch

@@ -1,0 +1,37 @@
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -456,8 +456,23 @@
+ * @returns the harness chunks, ending with `usage` then `finish`; throws
+ *   `LlmError` (`STREAM_CLOSED`) if the source ends without a terminal event.
+ */
++function detectRepeatLoop(text, minRepeat = 6) {
++	for (let unitLen = 4; unitLen <= 120; unitLen++) {
++		if (text.length < unitLen * minRepeat) continue;
++		const unit = text.slice(-unitLen);
++		let count = 0;
++		let pos = text.length;
++		while (pos >= unitLen && text.slice(pos - unitLen, pos) === unit) {
++			count += 1;
++			pos -= unitLen;
++		}
++		if (count >= minRepeat) return true;
++	}
++	return false;
++}
+ async function* toStreamChunks(events, contextWindow) {
+ 	const toolIds = /* @__PURE__ */ new Map();
++	let textAcc = "";
+ 	for await (const event of events) switch (event.type) {
+ 		case "start": break;
+ 		case "text_start":
+@@ -468,6 +483,10 @@
+ 			};
+ 			break;
+ 		case "text_delta":
++			textAcc += event.delta;
++			if (textAcc.length > 240 && detectRepeatLoop(textAcc)) {
++				throw new LlmError("pi-ai output entered a repetition loop", "REPEAT_LOOP");
++			}
+ 			yield {
+ 				type: "text-delta",
+ 				index: event.contentIndex,
